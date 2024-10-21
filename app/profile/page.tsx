@@ -1,0 +1,120 @@
+"use client";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import app from "../shared/FirebaseConfig";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  getFirestore,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
+import PostItem from "../components/Home/PostItem";
+import { Post } from "../types/Post";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+
+const Profile = ({ posts }: { posts: Post[] }) => {
+  const { data: session, status } = useSession(); // Access session and status
+  const [userPost, setUserPost] = useState<Post[]>([]);
+  const db = getFirestore(app);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+      return;
+    }
+
+    if (session?.user?.email) {
+      getUserPost();
+    }
+  }, [session, status]);
+
+  const getUserPost = async () => {
+    if (session?.user?.email) {
+      const q = query(
+        collection(db, "posts"),
+        where("email", "==", session?.user?.email)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const newPosts: Post[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as Post;
+        newPosts.push({ ...data, id: doc.id });
+      });
+
+      // Avoid adding duplicates
+      setUserPost((prevPosts) => {
+        const updatedPosts = newPosts.filter(
+          (newPost) => !prevPosts.some((post) => post.id === newPost.id)
+        );
+        return [...prevPosts, ...updatedPosts];
+      });
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    const confirmDelete = toast(
+      (t) => (
+        <div>
+          <p>Дали сакате да го избришете овој пост?</p>
+          <div className="flex space-x-4">
+            <button
+              className="bg-red-500 text-white p-2 rounded w-[50%]"
+              onClick={async () => {
+                const postRef = doc(db, "posts", postId);
+                await deleteDoc(postRef);
+                setUserPost(userPost.filter((post) => post.id !== postId));
+                toast.dismiss(t.id);
+              }}
+            >
+              Да
+            </button>
+            <button
+              className="bg-gray-300 text-black p-2 rounded w-[50%]"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Не
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 5000 }
+    );
+  };
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="flex justify-center min-h-screen p-6">
+      <div className="w-full max-w-[70%] md:max-w-[50%] lg:max-w-[65%]">
+        <h2 className="text-[30px] font-extrabold text-blue-500 text-center">
+          Профил
+        </h2>
+
+        {userPost.length === 0 ? (
+          <p className="text-center text-gray-500 mt-8 text-lg">
+            Немате креирано настани
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
+            {userPost.map((item) => (
+              <div key={item.id}>
+                <PostItem post={item} onDelete={() => deletePost(item.id)} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Profile;

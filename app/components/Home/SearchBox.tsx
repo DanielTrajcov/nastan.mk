@@ -6,7 +6,7 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-import app from "./../../shared/FirebaseConfig";
+import app from "../../shared/FirebaseConfig";
 import { Post } from "./../../types/Post";
 import { toast } from "react-hot-toast";
 

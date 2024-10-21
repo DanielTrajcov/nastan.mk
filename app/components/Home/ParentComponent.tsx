@@ -6,7 +6,7 @@ import Posts from "./Posts";
 
 const ParentComponent = () => {
   const [searchResults, setSearchResults] = useState<Post[]>([]);
-  const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [allPosts] = useState<Post[]>([]);
   const [zipCode, setZipCode] = useState<string>("");
 
   return (

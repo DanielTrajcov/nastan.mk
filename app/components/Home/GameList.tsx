@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Data from "./../../shared/Data";
+import Image from "next/image";
 
 interface Game {
   id: number;
@@ -23,7 +24,7 @@ const GameList = () => {
             className="flex flex-col items-center cursor-pointer"
             key={item.id}
           >
-            <img src={item.image} alt={item.name} width={65} height={65} />
+            <Image src={item.image} alt={item.name} width={65} height={65} />
             <h2 className="text-[14px] text-center">{item.name}</h2>
           </div>
         ))}

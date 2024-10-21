@@ -9,7 +9,7 @@ interface PostsProps {
   allPosts: Post[];
 }
 
-const Posts: React.FC<PostsProps> = ({ searchResults, zipCode, allPosts }) => {
+const Posts: React.FC<PostsProps> = ({ searchResults, allPosts }) => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   const displayPosts = searchResults.length > 0 ? searchResults : allPosts;

@@ -6,7 +6,6 @@ import app from "./../../shared/FirebaseConfig";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Post } from "./../../types/Post";
 import Image from "next/image";
 
 interface Inputs {
@@ -17,10 +16,15 @@ interface Inputs {
   location?: string;
   zip?: string;
   game?: string;
-  [key: string]: any;
+  [key: string]: unknown; // or Record<string, unknown>
+}
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[]; // array of strings
 }
 
-const Form = ({ post }: { post: Post }) => {
+const Form = () => {
   const router = useRouter();
   const [inputs, setInputs] = useState<Inputs>({});
   const { data: session } = useSession();
@@ -144,7 +148,8 @@ const Form = ({ post }: { post: Post }) => {
       ));
       router.push("/");
     } catch (error) {
-      toast.error("Грешка при прикачување на слика");
+      console.error("Грешка при креирање на пост:", error);
+      toast.error("Грешка при креирање на пост...");
     }
   };
 
@@ -168,8 +173,9 @@ const Form = ({ post }: { post: Post }) => {
               setLocation(formattedAddress);
 
               const addressComponents = data.results[0].address_components;
-              const postalCode = addressComponents.find((component: any) =>
-                component.types.includes("postal_code")
+              const postalCode = addressComponents.find(
+                (component: AddressComponent) =>
+                  component.types.includes("postal_code")
               );
               if (postalCode) {
                 setZipCode(postalCode.long_name);
@@ -178,6 +184,7 @@ const Form = ({ post }: { post: Post }) => {
               toast.error("Неможевме да најдеме локација");
             }
           } catch (error) {
+            console.error("Error fetching location:", error); // Log the error
             toast.error("Грешка при пронаоѓање на локација");
           }
         });

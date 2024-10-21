@@ -1,8 +1,6 @@
-// app/profile/page.tsx
-
 "use client";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import app from "../shared/FirebaseConfig";
 import {
   collection,
@@ -14,7 +12,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import PostItem from "../components/Home/PostItem";
-import { Post } from "../types/Post";
+import { Post } from "../types/Post"; // Ensure this path is correct
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -24,27 +22,16 @@ interface PageProps {
 }
 
 const Profile: React.FC<PageProps> = ({ posts }) => {
-  const { data: session, status } = useSession(); // Access session and status
-  const [userPost, setUserPost] = useState<Post[]>(posts || []); // Use initial posts from props
+  const { data: session, status } = useSession();
+  const [userPost, setUserPost] = useState<Post[]>(posts || []);
   const db = getFirestore(app);
   const router = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/");
-      return;
-    }
-
-    if (session?.user?.email) {
-      getUserPost();
-    }
-  }, [session, status]);
-
-  const getUserPost = async () => {
+  const getUserPost = useCallback(async () => {
     if (session?.user?.email) {
       const q = query(
         collection(db, "posts"),
-        where("email", "==", session?.user?.email)
+        where("email", "==", session.user.email)
       );
 
       const querySnapshot = await getDocs(q);
@@ -63,10 +50,21 @@ const Profile: React.FC<PageProps> = ({ posts }) => {
         return [...prevPosts, ...updatedPosts];
       });
     }
-  };
+  }, [db, session]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+      return;
+    }
+
+    if (session?.user?.email) {
+      getUserPost();
+    }
+  }, [session, status, getUserPost, router]);
 
   const deletePost = async (postId: string) => {
-    const confirmDelete = toast(
+    toast(
       (t) => (
         <div>
           <p>Дали сакате да го избришете овој пост?</p>

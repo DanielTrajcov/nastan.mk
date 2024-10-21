@@ -31,6 +31,9 @@ const GameList = [
   },
 ];
 
-export default {
+// Assign to a variable before exporting
+const GameData = {
   GameList,
 };
+
+export default GameData;

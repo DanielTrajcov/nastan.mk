@@ -2,7 +2,6 @@ import React from "react";
 import { HiOutlineLocationMarker, HiOutlineCalendar } from "react-icons/hi";
 import { Post } from "../../types/Post";
 import { HiOutlineClock, HiOutlineTrash } from "react-icons/hi2";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 interface PostItemProps {
@@ -12,8 +11,6 @@ interface PostItemProps {
 }
 
 const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
-  const { data: session } = useSession();
-
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
     const secondsAgo = Math.floor((now - timestamp) / 1000);
@@ -35,8 +32,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
   return (
     <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md  cursor-pointer h-auto mb-2">
       <div>
-        {" "}
-        <img
+        <Image
           className="rounded-t-lg rounded-b-2xl w-full h-[250px] object-cover"
           src={post.image}
           alt="PostImage"

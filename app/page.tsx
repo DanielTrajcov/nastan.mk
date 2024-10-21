@@ -5,11 +5,10 @@ import Hero from "./components/Home/Hero";
 import Posts from "./components/Home/Posts";
 import SearchBox from "./components/Home/SearchBox";
 import app from "./shared/FirebaseConfig";
-import { collection, getDocs, getFirestore, query } from "firebase/firestore";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { Post } from "./types/Post";
 
 export default function Home() {
-  const db = getFirestore(app);
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [zipCode, setZipCode] = useState<string>("");

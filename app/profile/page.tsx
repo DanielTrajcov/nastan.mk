@@ -1,3 +1,5 @@
+// app/profile/page.tsx
+
 "use client";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
@@ -16,9 +18,14 @@ import { Post } from "../types/Post";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const Profile = ({ posts }: { posts: Post[] }) => {
+// Define the PageProps interface
+interface PageProps {
+  posts: Post[]; // Ensure this aligns with how you're passing props to Profile
+}
+
+const Profile: React.FC<PageProps> = ({ posts }) => {
   const { data: session, status } = useSession(); // Access session and status
-  const [userPost, setUserPost] = useState<Post[]>([]);
+  const [userPost, setUserPost] = useState<Post[]>(posts || []); // Use initial posts from props
   const db = getFirestore(app);
   const router = useRouter();
 

@@ -12,13 +12,12 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import PostItem from "../components/Home/PostItem";
-import { Post } from "../types/Post"; // Ensure this path is correct
+import { Post } from "../types/Post";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-// Define the PageProps interface
 interface PageProps {
-  posts: Post[]; // Ensure this aligns with how you're passing props to Profile
+  posts: Post[];
 }
 
 const Profile: React.FC<PageProps> = ({ posts }) => {
@@ -42,7 +41,6 @@ const Profile: React.FC<PageProps> = ({ posts }) => {
         newPosts.push({ ...data, id: doc.id });
       });
 
-      // Avoid adding duplicates
       setUserPost((prevPosts) => {
         const updatedPosts = newPosts.filter(
           (newPost) => !prevPosts.some((post) => post.id === newPost.id)
@@ -99,7 +97,7 @@ const Profile: React.FC<PageProps> = ({ posts }) => {
 
   return (
     <div className="flex justify-center min-h-screen p-6">
-      <div className="w-full max-w-[70%] md:max-w-[50%] lg:max-w-[65%]">
+      <div className="w-full max-w-[70%] md:max-w-[50%] lg:max-w-[80%]">
         <h2 className="text-[30px] font-extrabold text-blue-500 text-center">
           Профил
         </h2>

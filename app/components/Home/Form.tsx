@@ -7,6 +7,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Post } from "../../types/Post";
 
 interface Inputs {
   title?: string;
@@ -16,15 +17,19 @@ interface Inputs {
   location?: string;
   zip?: string;
   game?: string;
-  [key: string]: unknown; // or Record<string, unknown>
+  [key: string]: unknown;
 }
 interface AddressComponent {
   long_name: string;
   short_name: string;
-  types: string[]; // array of strings
+  types: string[];
 }
 
-const Form = () => {
+interface FormProps {
+  post: Post;
+}
+
+const Form: React.FC<FormProps> = ({ post }) => {
   const router = useRouter();
   const [inputs, setInputs] = useState<Inputs>({});
   const { data: session } = useSession();
@@ -92,14 +97,14 @@ const Form = () => {
       const selectedDate = new Date(inputs.date || Date.now());
       const formattedDate = selectedDate.toLocaleDateString("en-US", {
         day: "numeric",
-        month: "long", // This will give the month name
+        month: "long",
         year: "numeric",
       });
 
       const createdAt = Date.now();
       const postData = {
         ...inputs,
-        date: formattedDate, // Store the formatted date
+        date: formattedDate,
         image: url,
         createdAt: createdAt,
         location: addressMethod === "automatic" ? location : manualAddress,
@@ -156,40 +161,46 @@ const Form = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-          setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            setLatitude(latitude);
+            setLongitude(longitude);
+            setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
 
-          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-          try {
-            const response = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
-            );
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-              const formattedAddress = data.results[0].formatted_address;
-              setLocation(formattedAddress);
-
-              const addressComponents = data.results[0].address_components;
-              const postalCode = addressComponents.find(
-                (component: AddressComponent) =>
-                  component.types.includes("postal_code")
+            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+            try {
+              const response = await fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
               );
-              if (postalCode) {
-                setZipCode(postalCode.long_name);
+              const data = await response.json();
+              if (data.results && data.results.length > 0) {
+                const formattedAddress = data.results[0].formatted_address;
+                setLocation(formattedAddress);
+
+                const addressComponents = data.results[0].address_components;
+                const postalCode = addressComponents.find(
+                  (component: AddressComponent) =>
+                    component.types.includes("postal_code")
+                );
+                if (postalCode) {
+                  setZipCode(postalCode.long_name);
+                }
+              } else {
+                toast.error("Unable to find location");
               }
-            } else {
-              toast.error("Неможевме да најдеме локација");
+            } catch (error) {
+              console.error("Error fetching location:", error);
+              toast.error("Error fetching location");
             }
-          } catch (error) {
-            console.error("Error fetching location:", error); // Log the error
-            toast.error("Грешка при пронаоѓање на локација");
+          },
+          (error) => {
+            console.error("Error obtaining geolocation:", error);
+            toast.error("Error obtaining geolocation: " + error.message);
           }
-        });
+        );
       } else {
-        toast.error("Геолокација не е подржана преку овој пребарувач");
+        toast.error("Geolocation is not supported by this browser.");
       }
     };
 
@@ -198,12 +209,11 @@ const Form = () => {
     }
   }, [addressMethod]);
 
-  // Reset zipCode when addressMethod changes
   useEffect(() => {
     if (addressMethod === "manual") {
-      setZipCode(""); // Reset zip code when switching to manual
+      setZipCode("");
     } else if (addressMethod === "automatic") {
-      setZipCode(""); // Optional: Reset zip code if switching back to automatic
+      setZipCode("");
     }
   }, [addressMethod]);
 

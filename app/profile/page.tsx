@@ -16,13 +16,9 @@ import { Post } from "../types/Post";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-interface PageProps {
-  posts: Post[];
-}
-
-const Profile: React.FC<PageProps> = ({ posts }) => {
+const Profile: React.FC = () => {
   const { data: session, status } = useSession();
-  const [userPost, setUserPost] = useState<Post[]>(posts || []);
+  const [userPost, setUserPost] = useState<Post[]>([]);
   const db = getFirestore(app);
   const router = useRouter();
 
@@ -41,12 +37,7 @@ const Profile: React.FC<PageProps> = ({ posts }) => {
         newPosts.push({ ...data, id: doc.id });
       });
 
-      setUserPost((prevPosts) => {
-        const updatedPosts = newPosts.filter(
-          (newPost) => !prevPosts.some((post) => post.id === newPost.id)
-        );
-        return [...prevPosts, ...updatedPosts];
-      });
+      setUserPost(newPosts);
     }
   }, [db, session]);
 

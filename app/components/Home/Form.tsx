@@ -29,7 +29,7 @@ interface FormProps {
   post: Post;
 }
 
-const Form: React.FC<FormProps> = ({ post }) => {
+const Form: React.FC<FormProps> = () => {
   const router = useRouter();
   const [inputs, setInputs] = useState<Inputs>({});
   const { data: session } = useSession();

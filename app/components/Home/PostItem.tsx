@@ -30,13 +30,15 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
   };
 
   return (
-    <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md  cursor-pointer h-auto mb-2">
+    <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer h-auto mb-2">
       <div>
-        <img
-          className="rounded-t-lg rounded-b-2xl w-full h-[250px] object-cover"
-          src={post.image}
-          alt="PostImage"
-        />
+        {post.image && (
+          <img
+            className="rounded-t-lg rounded-b-2xl w-full h-[250px] object-cover"
+            src={post.image}
+            alt="PostImage"
+          />
+        )}
       </div>
 
       <div className="p-5 ">
@@ -69,20 +71,22 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
           {post.desc}
         </p>
 
-        <div className="flex gap-2 mb-3 border p-2 rounded-md bg-gray-200 w-[60%] ">
+        <div className="flex gap-2 mb-3 border p-2 rounded-md bg-gray-200 w-[60%]">
           <HiOutlineClock className="text-[20px]" />
-          {formatTimeAgo(post.createdAt)}
+          {post.createdAt ? formatTimeAgo(post.createdAt) : "Непозната дата"}
         </div>
 
         {showModal && (
           <div className="flex shadow-md rounded-md gap-2 py-2">
-            <Image
-              src={post.userImage}
-              alt="User Profile"
-              width={45}
-              height={45}
-              className="rounded-full"
-            />
+            {post.userImage && (
+              <Image
+                src={post.userImage}
+                alt="User Profile"
+                width={45}
+                height={45}
+                className="rounded-full"
+              />
+            )}
             <div className="">
               <h2 className="text-gray-500">Автор</h2>
               <span className="text-xl text-black">{post.userName}</span>

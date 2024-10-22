@@ -3,5 +3,10 @@ export interface Post {
   title: string;
   location: string;
   image: string;
-  [key: string]: unknown; // Replace 'any' with 'unknown'
+  date?: string; // Optional
+  time?: string; // Optional
+  desc?: string; // Optional
+  createdAt?: number; // Optional
+  userImage?: string; // Optional
+  userName?: string; // Optional
 }

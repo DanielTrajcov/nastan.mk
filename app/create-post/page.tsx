@@ -15,6 +15,10 @@ const CreatePost = () => {
     title: "",
     location: "",
     image: "",
+    date: "", // Assuming it's a string, e.g., "2023-10-22"
+    time: "", // Assuming it's a string, e.g., "14:00"
+    desc: "",
+    createdAt: Date.now(), // Assuming it's a number (timestamp)
   };
 
   useEffect(() => {

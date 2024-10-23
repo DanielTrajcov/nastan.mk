@@ -13,7 +13,7 @@ const handler = NextAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET, // Add this if not already included
+  secret: process.env.NEXTAUTH_SECRET, // Ensure this is added
 });
 
-export default handler;
+export { handler as GET, handler as POST };

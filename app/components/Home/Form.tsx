@@ -161,44 +161,38 @@ const Form: React.FC<FormProps> = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            setLatitude(latitude);
-            setLongitude(longitude);
-            setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const { latitude, longitude } = position.coords;
+          setLatitude(latitude);
+          setLongitude(longitude);
+          setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
 
-            const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-            try {
-              const response = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+          try {
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+            );
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+              const formattedAddress = data.results[0].formatted_address;
+              setLocation(formattedAddress);
+
+              const addressComponents = data.results[0].address_components;
+              const postalCode = addressComponents.find(
+                (component: AddressComponent) =>
+                  component.types.includes("postal_code")
               );
-              const data = await response.json();
-              if (data.results && data.results.length > 0) {
-                const formattedAddress = data.results[0].formatted_address;
-                setLocation(formattedAddress);
-
-                const addressComponents = data.results[0].address_components;
-                const postalCode = addressComponents.find(
-                  (component: AddressComponent) =>
-                    component.types.includes("postal_code")
-                );
-                if (postalCode) {
-                  setZipCode(postalCode.long_name);
-                }
-              } else {
-                toast.error("Unable to find location");
+              if (postalCode) {
+                setZipCode(postalCode.long_name);
               }
-            } catch (error) {
-              console.error("Error fetching location:", error);
-              toast.error("Error fetching location");
+            } else {
+              toast.error("Не може да најдеме локација");
             }
-          },
-          (error) => {
-            console.error("Error obtaining geolocation:", error);
-            toast.error("Error obtaining geolocation: " + error.message);
+          } catch (error) {
+            console.error("Error fetching location:", error);
+            toast.error("Error fetching location");
           }
-        );
+        });
       } else {
         toast.error("Geolocation is not supported by this browser.");
       }

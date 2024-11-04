@@ -16,7 +16,7 @@ import { Post } from "../types/Post";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
-const Profile: React.FC = () => {
+const Profile = () => {
   const { data: session, status } = useSession();
   const [userPost, setUserPost] = useState<Post[]>([]);
   const db = getFirestore(app);

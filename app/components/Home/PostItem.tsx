@@ -71,7 +71,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
           {post.desc}
         </p>
 
-        <div className="flex gap-2 mb-3 border p-2 rounded-md bg-gray-200 w-[60%]">
+        <div className="flex gap-2 mb-3 border p-2 rounded-md bg-gray-200 w-full">
           <HiOutlineClock className="text-[20px]" />
           {post.createdAt ? formatTimeAgo(post.createdAt) : "Непозната дата"}
         </div>

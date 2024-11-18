@@ -24,19 +24,12 @@ const PostModal: React.FC<PostModalProps> = ({ post, closeModal }) => {
   };
 
   return (
-    <div>
+    <div onClick={handleClose}>
       <dialog id="my_modal_1" className="modal" ref={modalRef}>
         <div className="modal-box w-full max-w-xs sm:max-w-md">
           <div className="flex justify-center">
             <form method="dialog" className="flex flex-col w-full">
               <PostItem post={post} showModal={true} />
-              <button
-                type="button"
-                onClick={handleClose}
-                className="btn bg-gray-200 mt-5 text-xl text-black font-normal"
-              >
-                Затвори
-              </button>
             </form>
           </div>
         </div>

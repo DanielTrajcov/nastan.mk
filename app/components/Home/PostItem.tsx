@@ -31,10 +31,10 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
 
   return (
     <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer h-auto mb-2">
-      <div>
+      <div className="pt-5 px-5">
         {post.image && (
           <img
-            className="rounded-t-lg rounded-b-2xl w-full h-[250px] object-cover"
+            className="rounded-lg w-full h-[320px] object-cover"
             src={post.image}
             alt="PostImage"
           />
@@ -77,13 +77,13 @@ const PostItem: React.FC<PostItemProps> = ({ post, showModal, onDelete }) => {
         </div>
 
         {showModal && (
-          <div className="flex shadow-md rounded-md gap-2 py-2">
+          <div className="flex gap-2 py-2">
             {post.userImage && (
               <Image
                 src={post.userImage}
                 alt="User Profile"
-                width={45}
-                height={45}
+                width={50}
+                height={50}
                 className="rounded-full"
               />
             )}

@@ -37,8 +37,6 @@ export default function Home() {
           setZipCode={setZipCode}
         />
 
-        <GameList />
-
         <Posts
           searchResults={searchResults}
           zipCode={zipCode}

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import GameList from "./components/Home/GameList";
 import Hero from "./components/Home/Hero";
 import Posts from "./components/Home/Posts";
 import SearchBox from "./components/Home/SearchBox";

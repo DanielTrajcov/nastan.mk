@@ -52,14 +52,18 @@ const Profile = () => {
     }
   }, [session, status, getUserPost, router]);
 
+  const handleEdit = (postId: string) => {
+    router.push(`/edit/${postId}`);
+  };
+
   const deletePost = async (postId: string) => {
     toast(
       (t) => (
-        <div>
+        <div className="">
           <p>Дали сакате да го избришете овој пост?</p>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 py-4">
             <button
-              className="bg-red-500 text-white p-2 rounded w-[50%]"
+              className=" text-white p-2 rounded-lg bg-red-500 border-b-2 w-[50%] "
               onClick={async () => {
                 const postRef = doc(db, "posts", postId);
                 await deleteDoc(postRef);
@@ -70,7 +74,7 @@ const Profile = () => {
               Да
             </button>
             <button
-              className="bg-gray-300 text-black p-2 rounded w-[50%]"
+              className="bg-gray-300 text-black p-2 rounded-lg w-[50%]"
               onClick={() => toast.dismiss(t.id)}
             >
               Не
@@ -101,7 +105,11 @@ const Profile = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-5">
             {userPost.map((item) => (
               <div key={item.id}>
-                <PostItem post={item} onDelete={() => deletePost(item.id)} />
+                <PostItem
+                  post={item}
+                  onDelete={() => deletePost(item.id)}
+                  onEdit={() => handleEdit(item.id)}
+                />
               </div>
             ))}
           </div>

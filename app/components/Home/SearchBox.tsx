@@ -63,7 +63,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           maxLength={4}
           value={zipCodeInput}
           onChange={handleSearch}
-          className="block w-full p-4 text-md text-black shadow-md rounded-lg bg-white"
+          className="block w-full p-4 text-md text-black shadow-md rounded-lg bg-white outline-blue-400"
           placeholder="Внесете Zip код..."
           required
         />

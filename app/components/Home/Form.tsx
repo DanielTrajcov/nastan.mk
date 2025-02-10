@@ -93,7 +93,6 @@ const Form: React.FC<FormProps> = () => {
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
 
-      // Convert date to desired format
       const selectedDate = new Date(inputs.date || Date.now());
       const formattedDate = selectedDate.toLocaleDateString("en-US", {
         day: "numeric",
@@ -136,7 +135,7 @@ const Form: React.FC<FormProps> = () => {
                   {session?.user?.name}
                 </p>
                 <p className="text-sm font-medium text-gray-900">
-                  Успешно креира настан
+                  Успешно креиран настан
                 </p>
               </div>
             </div>
@@ -146,7 +145,7 @@ const Form: React.FC<FormProps> = () => {
               onClick={() => toast.dismiss(t.id)}
               className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              Изгаси
+              Затвори
             </button>
           </div>
         </div>
@@ -166,7 +165,7 @@ const Form: React.FC<FormProps> = () => {
           setLatitude(latitude);
           setLongitude(longitude);
           setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
-
+  
           const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
           try {
             const response = await fetch(
@@ -176,7 +175,7 @@ const Form: React.FC<FormProps> = () => {
             if (data.results && data.results.length > 0) {
               const formattedAddress = data.results[0].formatted_address;
               setLocation(formattedAddress);
-
+  
               const addressComponents = data.results[0].address_components;
               const postalCode = addressComponents.find(
                 (component: AddressComponent) =>
@@ -186,22 +185,22 @@ const Form: React.FC<FormProps> = () => {
                 setZipCode(postalCode.long_name);
               }
             } else {
-              toast.error("Не може да најдеме локација");
+              toast.error("Не е пронајдена локација");
             }
-          } catch (error) {
-            console.error("Error fetching location:", error);
-            toast.error("Error fetching location");
+          } catch {
+            toast.error("Грешка при наоѓање на локација");
           }
         });
       } else {
-        toast.error("Geolocation is not supported by this browser.");
+        toast.error("Геолокација не е подржано преку овој пребарувач.");
       }
     };
-
+  
     if (addressMethod === "automatic") {
       fetchLocation();
     }
   }, [addressMethod]);
+  
 
   useEffect(() => {
     if (addressMethod === "manual") {
@@ -218,16 +217,16 @@ const Form: React.FC<FormProps> = () => {
           <input
             type="text"
             name="title"
-            maxLength={35}
+            maxLength={28}
             placeholder="Наслов"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
           />
           <textarea
             name="desc"
             maxLength={75}
-            className="w-full mb-4 outline-blue-400 border-[1px] p-3 rounded-md"
+            className="w-full mb-4  border-[1px] p-3 rounded-md outline-blue-400"
             required
             onChange={handleChange}
             placeholder="Внесете опис овде"
@@ -237,7 +236,7 @@ const Form: React.FC<FormProps> = () => {
             name="date"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
           />
 
           <input
@@ -245,12 +244,12 @@ const Form: React.FC<FormProps> = () => {
             name="time"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
           />
 
-          <div className="mb-4 flex justify-around">
+          <div className="mb-4 flex justify-between gap-5">
             <label
-              className={`text-lg border-[0.5px] border-gray-400 p-3 rounded-md cursor-pointer ${
+              className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "automatic"
                   ? " border-y-blue-500 border-x-blue-500 border-r-8"
                   : ""
@@ -267,7 +266,7 @@ const Form: React.FC<FormProps> = () => {
             </label>
 
             <label
-              className={`text-lg border-[0.5px] border-gray-400 p-3 rounded-md cursor-pointer ${
+              className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "manual"
                   ? "border-y-blue-500 border-x-blue-500 border-r-8"
                   : ""
@@ -299,7 +298,7 @@ const Form: React.FC<FormProps> = () => {
               name="manualAddress"
               value={manualAddress}
               onChange={handleChange}
-              className="w-full mb-4 border-[1px] p-3 rounded-md"
+              className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
               required
             />
           )}
@@ -307,16 +306,17 @@ const Form: React.FC<FormProps> = () => {
             type="text"
             placeholder="Zip"
             name="zip"
+            maxLength={4}
             value={zipCode}
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
             required
           />
           <select
             name="game"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
           >
             <option disabled value="">
               Изберете категорија

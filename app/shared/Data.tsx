@@ -1,27 +1,27 @@
 const GameList = [
   {
     id: 1,
-    name: "Кошарка",
+    name: "Програмирање и технологија",
     image: "/Images/BasketBall.png",
   },
   {
     id: 2,
-    name: "Тенис",
+    name: "Спорт и фитнес",
     image: "/Images/Tennis.png",
   },
   {
     id: 3,
-    name: "Пинг Понг",
+    name: "Музика и забава",
     image: "/Images/PingPong.png",
   },
   {
     id: 4,
-    name: "Фудбал",
+    name: "Бизнис",
     image: "/Images/SoccerBall.png",
   },
   {
     id: 5,
-    name: "Трчање",
+    name: "Уметност и култура",
     image: "/Images/Trekking.png",
   },
   {
@@ -31,7 +31,6 @@ const GameList = [
   },
 ];
 
-// Assign to a variable before exporting
 const GameData = {
   GameList,
 };

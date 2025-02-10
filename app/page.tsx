@@ -1,41 +1,53 @@
 "use client";
 import { useEffect, useState } from "react";
-import Hero from "./components/Home/Hero";
 import Posts from "./components/Home/Posts";
 import SearchBox from "./components/Home/SearchBox";
 import app from "./shared/firebaseConfig";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { Post } from "./types/Post";
+import Hero from "./components/Home/Hero";
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [zipCode, setZipCode] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const db = getFirestore(app);
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      const posts: Post[] = [];
-      querySnapshot.forEach((doc) => {
-        posts.push({ id: doc.id, ...doc.data() } as Post);
-      });
-      setPosts(posts);
+      try {
+        setLoading(true); 
+        const db = getFirestore(app);
+        const querySnapshot = await getDocs(collection(db, "posts"));
+        const posts: Post[] = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Post[];
+        setPosts(posts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      } finally {
+        setLoading(false); 
+      }
     };
 
     fetchPosts();
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center mt-9">
+    <div className="relative flex flex-col items-center justify-center mt-9">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/60 backdrop-blur-md z-50">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      )}
+
       <div className="w-[80%] md:w-[50%] lg:w-[80%]">
         <Hero />
-
         <SearchBox
           setSearchResults={setSearchResults}
           setZipCode={setZipCode}
         />
-
         <Posts
           searchResults={searchResults}
           zipCode={zipCode}

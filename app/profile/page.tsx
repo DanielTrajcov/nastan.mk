@@ -92,8 +92,8 @@ const Profile = () => {
 
   return (
     <div className="flex justify-center min-h-screen p-6">
-      <div className="w-full max-w-[70%] md:max-w-[50%] lg:max-w-[80%]">
-        <h2 className="text-[30px] font-extrabold text-blue-500 text-center">
+      <div className="w-full max-w-[70%] md:max-w-[60%] lg:max-w-[100%]">
+        <h2 className="text-[30px] font-extrabold text-accent text-center">
           Профил
         </h2>
 

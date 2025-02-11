@@ -3,10 +3,10 @@ export interface Post {
   title: string;
   location: string;
   image: string;
-  date?: string; // Optional
-  time?: string; // Optional
-  desc?: string; // Optional
-  createdAt?: number; // Optional
-  userImage?: string; // Optional
-  userName?: string; // Optional
+  date?: string; 
+  time?: string; 
+  desc?: string; 
+  createdAt?: number; 
+  userImage?: string; 
+  userName?: string; 
 }

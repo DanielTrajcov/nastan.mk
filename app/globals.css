@@ -1,16 +1,25 @@
+@import url(https://db.onlinewebfonts.com/c/512223f2ac461e5d32b2273265e49209?family=Biro+Script+Plus+Sloppy+US);
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 :root {
   --background: #f3f4f6;
   --foreground: #000000; /* Example foreground color */
 }
 
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica,'Biro Script Plus Sloppy US', sans-serif;
+}
+
+.logo{
+  font-family: 'Biro Script Plus Sloppy US', sans-serif;
 }
 
 @layer utilities {
@@ -18,3 +27,13 @@ body {
     text-wrap: balance;
   }
 }
+
+/* In your global CSS or inside a <style> tag */
+.react-toastify .Toastify__toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+

@@ -221,12 +221,12 @@ const Form: React.FC<FormProps> = () => {
             placeholder="Наслов"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
           <textarea
             name="desc"
             maxLength={75}
-            className="w-full mb-4  border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4  border-[1px] p-3 rounded-md outline-accent"
             required
             onChange={handleChange}
             placeholder="Внесете опис овде"
@@ -236,7 +236,7 @@ const Form: React.FC<FormProps> = () => {
             name="date"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
           <input
@@ -244,14 +244,14 @@ const Form: React.FC<FormProps> = () => {
             name="time"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
           <div className="mb-4 flex justify-between gap-5">
             <label
               className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "automatic"
-                  ? " border-y-blue-500 border-x-blue-500 border-r-8"
+                  ? " border-y-accent border-x-accent border-r-8"
                   : ""
               }`}
             >
@@ -268,7 +268,7 @@ const Form: React.FC<FormProps> = () => {
             <label
               className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "manual"
-                  ? "border-y-blue-500 border-x-blue-500 border-r-8"
+                  ? "border-y-accent border-x-accent border-r-8"
                   : ""
               }`}
             >
@@ -298,7 +298,7 @@ const Form: React.FC<FormProps> = () => {
               name="manualAddress"
               value={manualAddress}
               onChange={handleChange}
-              className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+              className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
               required
             />
           )}
@@ -309,14 +309,14 @@ const Form: React.FC<FormProps> = () => {
             maxLength={4}
             value={zipCode}
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
             required
           />
           <select
             name="game"
             required
             onChange={handleChange}
-            className="w-full mb-4 border-[1px] p-3 rounded-md outline-blue-400"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           >
             <option disabled value="">
               Изберете категорија
@@ -331,7 +331,7 @@ const Form: React.FC<FormProps> = () => {
             accept="image/gif, image/jpeg, image/jpg, image/png"
             className="mb-5 border-[1px] w-full py-3"
           />
-          <button className="bg-blue-500 w-full p-3 rounded-md text-white">
+          <button className="bg-accent w-full p-3 rounded-md text-white">
             Креирај
           </button>
         </form>

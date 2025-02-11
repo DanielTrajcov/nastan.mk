@@ -16,6 +16,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        accent:{
+          DEFAULT:"#f64060",
+          hover:"#f64070",
+        }
       },
     },
   },

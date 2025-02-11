@@ -7,8 +7,8 @@ const Footer = () => {
             href="#"
             className="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse"
           >
-            <p className="text-4xl font-extrabold cursor-pointer">
-              Настан<span className="text-blue-500 font-semibold">.мк</span>
+            <p className="text-4xl font-semibold cursor-pointer logo">
+              Настан<span className="text-accent font-semibold">.мк</span>
             </p>
           </a>
           <span className="block text-sm text-gray-500 sm:text-center  ">

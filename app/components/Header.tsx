@@ -18,10 +18,10 @@ function Header() {
     <nav className="bg-white text-black shadow-md relative w-full top-0 z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-3 relative">
         <p
-          className="text-4xl font-extrabold cursor-pointer"
+          className="text-4xl font-semibold cursor-pointer logo"
           onClick={() => router.push("/")}
         >
-          Настан<span className="text-blue-500 font-semibold">.мк</span>
+          Настан<span className="text-accent font-semibold">.мк</span>
         </p>
         <button
           type="button"
@@ -52,6 +52,7 @@ function Header() {
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
+                
                 <button
                   className="absolute top-2 right-2 text-4xl text-gray-900"
                   onClick={() => setNavOpen(false)}

@@ -29,12 +29,11 @@ const CreatePost = () => {
   }, [session, router]);
 
   return (
-    <div className="flex justify-center">
-      <div className="p-6 mt-8 lg:w-[35%] md:w-[50%]">
-        <h2 className="text-[30px] font-extrabold text-blue-500">
+    <div className="flex justify-center items-center">
+      <div className="p-6 mt-8 lg:w-[5%] md:w-[50%]">
+        <h2 className="text-[30px] font-extrabold text-accent text-center">
           КРЕИРАЈ НАСТАН
         </h2>
-        <p>Креирај настан и повикај нови пријатели и играчи</p>
         <Form post={defaultPost} />
       </div>
     </div>

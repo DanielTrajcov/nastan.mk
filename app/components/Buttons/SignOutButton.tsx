@@ -8,15 +8,15 @@ const SignOutButton = () => {
   return (
     <>
       <button
-        className=" px-3 py-2 text-gray-500 border-[1px] rounded-3xl"
+        className="text-black"
         onClick={async () => {
           await signOut();
           router.push("/");
         }}
       >
-        <div className="flex items-center gap-2">
-          <span className="">Одјави се</span>
-          <HiArrowLeftOnRectangle className="text-[30px]" />
+        <div className="flex gap-2">
+          <span>Одјави се</span>
+          <HiArrowLeftOnRectangle className="text-[25px]" />
         </div>
       </button>
     </>

@@ -7,12 +7,12 @@ const CreatePostButton = () => {
   return (
     <div>
       <button
-        className="bg-black px-4 py-1.5 text-white rounded-3xl"
+        className="text-black"
         onClick={() => router.push("/create-post")}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2">
           <span className="">Креирај</span>
-          <HiOutlinePencilSquare className="text-[30px] " />
+          <HiOutlinePencilSquare className="text-[25px]" />
         </div>
       </button>
     </div>

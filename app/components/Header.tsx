@@ -8,6 +8,8 @@ import CreatePostButton from "./Buttons/CreatePostButton";
 import { HiBars3, HiXMark } from "react-icons/hi2";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import RegisterButton from "./Buttons/RegisterButton";
+import LogoButton from "./Buttons/LogoButton";
 
 function Header() {
   const { data: session } = useSession();
@@ -17,12 +19,7 @@ function Header() {
   return (
     <nav className="bg-white text-black shadow-md relative w-full top-0 z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-3 relative">
-        <p
-          className="text-4xl font-semibold cursor-pointer logo"
-          onClick={() => router.push("/")}
-        >
-          Настан<span className="text-accent font-semibold">.мк</span>
-        </p>
+      <LogoButton/>
         <button
           type="button"
           className="text-4xl text-gray-900 md:hidden"
@@ -46,7 +43,7 @@ function Header() {
               />
               {/* Sliding Menu */}
               <motion.div
-                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-center gap-6 py-16"
+                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-center gap-2 py-16"
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
@@ -59,16 +56,21 @@ function Header() {
                 >
                   <HiXMark />
                 </button>
-                <button
-                  onClick={() => {
-                    setNavOpen(false);
-                    router.push("/create-post");
-                  }}
-                >
-                  <CreatePostButton />
+                <button className="absolute top-2 left-2">
+                <LogoButton/>
                 </button>
+
+
+                
+
                 {session?.user?.image && (
                   <div className="flex items-center">
+                    <button onClick={() => {
+                      setNavOpen(false);
+                    }}
+                  >
+                    <CreatePostButton />
+                  </button>
                     <button
                       className="px-3 py-2 text-gray-500 border-[1px] rounded-3xl border-r-0 rounded-r-none"
                       onClick={() => {
@@ -88,6 +90,7 @@ function Header() {
                   </div>
                 )}
                 {!session ? <SignInButton /> : <SignOutButton />}
+                <RegisterButton/>
               </motion.div>
             </>
           )}
@@ -95,9 +98,9 @@ function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-4">
-          <CreatePostButton />
           {session?.user?.image && (
             <div className="flex items-center">
+            <CreatePostButton />
               <button
                 className="px-3 py-2 text-gray-500 border-[1px] rounded-3xl border-r-0 rounded-r-none"
                 onClick={() => router.push("/profile")}
@@ -114,6 +117,7 @@ function Header() {
             </div>
           )}
           {!session ? <SignInButton /> : <SignOutButton />}
+          <RegisterButton/>
         </div>
       </div>
     </nav>

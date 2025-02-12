@@ -165,7 +165,7 @@ const Form: React.FC<FormProps> = () => {
           setLatitude(latitude);
           setLongitude(longitude);
           setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
-  
+
           const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
           try {
             const response = await fetch(
@@ -175,7 +175,7 @@ const Form: React.FC<FormProps> = () => {
             if (data.results && data.results.length > 0) {
               const formattedAddress = data.results[0].formatted_address;
               setLocation(formattedAddress);
-  
+
               const addressComponents = data.results[0].address_components;
               const postalCode = addressComponents.find(
                 (component: AddressComponent) =>
@@ -195,12 +195,11 @@ const Form: React.FC<FormProps> = () => {
         toast.error("Геолокација не е подржано преку овој пребарувач.");
       }
     };
-  
+
     if (addressMethod === "automatic") {
       fetchLocation();
     }
   }, [addressMethod]);
-  
 
   useEffect(() => {
     if (addressMethod === "manual") {

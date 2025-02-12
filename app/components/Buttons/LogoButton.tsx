@@ -1,18 +1,16 @@
-import { useRouter } from 'next/navigation'
-import React from 'react'
+import Link from "next/link";
+import React from "react";
 
 const LogoButton = () => {
-    const router = useRouter();
   return (
     <>
-            <p
-          className="text-4xl font-semibold cursor-pointer logo"
-          onClick={() => router.push("/")}
-        >
+      <Link href="/">
+        <p className="text-4xl font-semibold cursor-pointer logo">
           Настан<span className="text-accent font-semibold">.мк</span>
         </p>
+      </Link>
     </>
-  )
-}
+  );
+};
 
-export default LogoButton
+export default LogoButton;

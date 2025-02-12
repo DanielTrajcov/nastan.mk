@@ -19,6 +19,9 @@ const config: Config = {
         accent:{
           DEFAULT:"#f64060",
           hover:"#f64070",
+        },
+        accent2:{
+          DEFAULT:"#00798a",
         }
       },
     },

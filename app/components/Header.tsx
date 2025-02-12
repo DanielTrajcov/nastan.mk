@@ -1,25 +1,23 @@
 "use client";
-import Image from "next/image";
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import SignInButton from "./Buttons/SignInButton";
 import SignOutButton from "./Buttons/SignOutButton";
 import CreatePostButton from "./Buttons/CreatePostButton";
 import { HiBars3, HiXMark } from "react-icons/hi2";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import RegisterButton from "./Buttons/RegisterButton";
 import LogoButton from "./Buttons/LogoButton";
+import ProfileButton from "./Buttons/ProfileButton";
 
 function Header() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [isNavOpen, setNavOpen] = useState(false);
 
   return (
     <nav className="bg-white text-black shadow-md relative w-full top-0 z-50">
       <div className="max-w-screen-xl flex items-center justify-between mx-auto px-4 py-3 relative">
-      <LogoButton/>
+        <LogoButton />
         <button
           type="button"
           className="text-4xl text-gray-900 md:hidden"
@@ -35,7 +33,7 @@ function Header() {
             <>
               {/* Backdrop */}
               <motion.div
-                className="fixed inset-0 bg-black/50 z-40"
+                className="fixed inset-0 bg-black/60 z-40"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -49,7 +47,6 @@ function Header() {
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
-                
                 <button
                   className="absolute top-2 right-2 text-4xl text-gray-900"
                   onClick={() => setNavOpen(false)}
@@ -57,67 +54,53 @@ function Header() {
                   <HiXMark />
                 </button>
                 <button className="absolute top-2 left-2">
-                <LogoButton/>
+                  <LogoButton />
                 </button>
-
-
-                
-
-                {session?.user?.image && (
-                  <div className="flex items-center">
-                    <button onClick={() => {
-                      setNavOpen(false);
-                    }}
-                  >
-                    <CreatePostButton />
-                  </button>
+                {!session ? (
+                  <>
+                    <SignInButton />
+                    <RegisterButton />
+                  </>
+                ) : (
+                  <>
                     <button
-                      className="px-3 py-2 text-gray-500 border-[1px] rounded-3xl border-r-0 rounded-r-none"
                       onClick={() => {
                         setNavOpen(false);
-                        router.push("/profile");
                       }}
                     >
-                      Профил
+                      <CreatePostButton />
                     </button>
-                    <Image
-                      src={session.user.image}
-                      width={42}
-                      height={42}
-                      alt="UserImage"
-                      className="cursor-pointer border-[1px] rounded-3xl border-l-0 rounded-l-none"
-                    />
-                  </div>
+                    <button
+                      onClick={() => {
+                        setNavOpen(false);
+                      }}
+                    >
+                      <ProfileButton />
+                    </button>
+                    <SignOutButton />
+                  </>
                 )}
-                {!session ? <SignInButton /> : <SignOutButton />}
-                <RegisterButton/>
               </motion.div>
             </>
           )}
         </AnimatePresence>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-2">
           {session?.user?.image && (
-            <div className="flex items-center">
-            <CreatePostButton />
-              <button
-                className="px-3 py-2 text-gray-500 border-[1px] rounded-3xl border-r-0 rounded-r-none"
-                onClick={() => router.push("/profile")}
-              >
-                Профил
-              </button>
-              <Image
-                src={session.user.image}
-                width={42}
-                height={42}
-                alt="UserImage"
-                className="cursor-pointer border-[1px] rounded-3xl border-l-0 rounded-l-none"
-              />
+            <div className="flex items-center gap-2">
+              <CreatePostButton />
+              <ProfileButton />
             </div>
           )}
-          {!session ? <SignInButton /> : <SignOutButton />}
-          <RegisterButton/>
+          {!session ? (
+            <>
+              <SignInButton />
+              <RegisterButton />
+            </>
+          ) : (
+            <SignOutButton />
+          )}
         </div>
       </div>
     </nav>

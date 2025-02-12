@@ -1,14 +1,16 @@
-import React from "react";
-import { signIn } from "next-auth/react";
+import React, { useState } from "react";
+import SignInModal from "../Home/SignInModal";
 
 const SignInButton = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   return (
     <>
       <button className="text-black">
-        <span onClick={() => signIn()}>
-        Најави се
-        </span>
+        <span onClick={openModal}>Најави се</span>
       </button>
+      <SignInModal isOpen={isModalOpen} closeModal={closeModal} />
     </>
   );
 };

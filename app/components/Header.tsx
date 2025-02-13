@@ -59,6 +59,7 @@ function Header() {
                 {!session ? (
                   <>
                     <SignInButton />
+                    <RegisterButton />
                   </>
                 ) : (
                   <>
@@ -95,6 +96,7 @@ function Header() {
           {!session ? (
             <>
               <SignInButton />
+              <RegisterButton />
             </>
           ) : (
             <SignOutButton />

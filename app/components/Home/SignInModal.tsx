@@ -6,14 +6,9 @@ import Image from "next/image";
 interface SignInModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  switchToRegister: () => void; // Function to switch to Register Modal
 }
 
-const SignInModal = ({
-  isOpen,
-  closeModal,
-  switchToRegister,
-}: SignInModalProps) => {
+const SignInModal = ({ isOpen, closeModal }: SignInModalProps) => {
   if (!isOpen) return null;
 
   return (

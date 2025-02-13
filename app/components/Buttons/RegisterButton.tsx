@@ -1,15 +1,18 @@
-import React from 'react'
+import React, { useState } from "react";
+import RegisterModal from "../Home/RegisterModal";
 
 const RegisterButton = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
   return (
-        <>
-          <button className=" text-black p-2 border-[1px] rounded-xl">
-            <span>
-            Регистрирај се
-            </span>
-          </button>
-        </>
-  )
-}
+    <>
+      <button className="text-black">
+        <span onClick={openModal}>Регистрирај се</span>
+      </button>
+      <RegisterModal isOpen={isModalOpen} closeModal={closeModal} />
+    </>
+  );
+};
 
-export default RegisterButton
+export default RegisterButton;

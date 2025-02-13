@@ -3,17 +3,12 @@ import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import Image from "next/image";
 
-interface SignInModalProps {
+interface RegisterModalProps {
   isOpen: boolean;
   closeModal: () => void;
-  switchToRegister: () => void; // Function to switch to Register Modal
 }
 
-const SignInModal = ({
-  isOpen,
-  closeModal,
-  switchToRegister,
-}: SignInModalProps) => {
+const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -51,14 +46,26 @@ const SignInModal = ({
             <p className="text-6xl font-extrabold cursor-pointer logo pb-8 ">
               Настан<span className="text-accent font-semibold">.мк</span>
             </p>
-            <h1 className="text-3xl p-2">Најави се</h1>
-            <h2>
-              Се уште не сте член?
-              <span className="text-accent2">Регистрирај се</span>
-            </h2>
+            <h1 className="text-3xl p-2">Регистрирај се</h1>
           </div>
 
           <div className="flex flex-col p-6">
+            <div>
+              <label
+                htmlFor="name"
+                className="p-1 text-sm font-semibold text-gray-600 "
+              >
+                Име и Презиме
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-3 outline-accent2 "
+                placeholder="Петко Петковски"
+                required
+              />
+            </div>
             <div>
               <label
                 htmlFor="email"
@@ -92,7 +99,7 @@ const SignInModal = ({
               />
             </div>
             <button className="mt-4 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold">
-              Најави се
+              Регистрирај се
             </button>
           </div>
           <div className="flex justify-between w-full items-center p-2">
@@ -101,7 +108,6 @@ const SignInModal = ({
             <div className="w-full border-b border-gray-200"></div>
           </div>
 
-          {/* Social Sign-in Buttons */}
           <div className="p-4 md:p-5">
             <div className="space-y-6">
               <button
@@ -115,7 +121,7 @@ const SignInModal = ({
                   height={25}
                   className="w-6 h-6"
                 />
-                Најави се со Google
+                Регистрирај се со Google
               </button>
 
               <button
@@ -129,7 +135,7 @@ const SignInModal = ({
                   height={25}
                   className="w-6 h-6"
                 />
-                Најави се со Facebook
+                Регистрирај се со Facebook
               </button>
             </div>
           </div>
@@ -139,4 +145,4 @@ const SignInModal = ({
   );
 };
 
-export default SignInModal;
+export default RegisterModal;

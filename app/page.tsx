@@ -16,7 +16,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        setLoading(true); 
+        setLoading(true);
         const db = getFirestore(app);
         const querySnapshot = await getDocs(collection(db, "posts"));
         const posts: Post[] = querySnapshot.docs.map((doc) => ({
@@ -27,7 +27,7 @@ export default function Home() {
       } catch (error) {
         console.error("Error fetching posts:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -37,8 +37,10 @@ export default function Home() {
   return (
     <div className="relative flex flex-col items-center justify-center mt-9">
       {loading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-white/60 backdrop-blur-md z-50">
-          <span className="loading loading-spinner loading-lg"></span>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50">
+          <span className="text-6xl p-3 font-bold text-transparent bg-clip-text animate-fill logo">
+            Настан.мк
+          </span>
         </div>
       )}
 

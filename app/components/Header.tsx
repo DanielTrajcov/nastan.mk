@@ -6,9 +6,9 @@ import SignOutButton from "./Buttons/SignOutButton";
 import CreatePostButton from "./Buttons/CreatePostButton";
 import { HiBars3, HiXMark } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
-import RegisterButton from "./Buttons/RegisterButton";
 import LogoButton from "./Buttons/LogoButton";
 import ProfileButton from "./Buttons/ProfileButton";
+import RegisterButton from "./Buttons/RegisterButton";
 
 function Header() {
   const { data: session } = useSession();
@@ -59,7 +59,6 @@ function Header() {
                 {!session ? (
                   <>
                     <SignInButton />
-                    <RegisterButton />
                   </>
                 ) : (
                   <>
@@ -96,7 +95,6 @@ function Header() {
           {!session ? (
             <>
               <SignInButton />
-              <RegisterButton />
             </>
           ) : (
             <SignOutButton />

@@ -15,7 +15,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica,'Biro Script Plus Sloppy US', sans-serif;
+  font-family: Helvetica,'Biro Script Plus Sloppy US', sans-serif;
 }
 
 .logo{
@@ -37,3 +37,22 @@ body {
   z-index: 9999;
 }
 
+@keyframes fillAnimation {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.animate-fill {
+  display: inline-block;
+  background: linear-gradient(to left, #000000, #f64060); 
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: fillAnimation 2s forwards infinite;
+}

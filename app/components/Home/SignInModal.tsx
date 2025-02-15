@@ -1,19 +1,64 @@
+// SignInModal.js
 import { signIn } from "next-auth/react";
 import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import Image from "next/image";
+import { useState } from "react";
 
 interface SignInModalProps {
   isOpen: boolean;
   closeModal: () => void;
+  openRegisterModal: () => void; // Prop for opening the register modal
 }
 
-const SignInModal = ({ isOpen, closeModal }: SignInModalProps) => {
+const SignInModal = ({
+  isOpen,
+  closeModal,
+  openRegisterModal,
+}: SignInModalProps) => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+
   if (!isOpen) return null;
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if both email and password are provided
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    try {
+      const res = await signIn("credentials", {
+        redirect: false, // Keep false to prevent auto-redirect
+        email,
+        password,
+      });
+
+      console.log("Sign-in response:", res); // Log the entire response for debugging
+
+      if (res?.error) {
+        console.error("Sign-in error:", res.error); // Log error message for debugging
+        setError(res.error); // Show the error to the user
+      } else {
+        // Handle success (redirect user or close modal)
+        console.log("Sign-in successful:", res);
+        closeModal(); // Close modal or redirect as needed
+        // Optionally, handle user redirection after successful sign-in
+        // For example, you could redirect the user to the home page or dashboard:
+        // router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Unexpected error during sign-in:", error); // Log any unexpected errors
+      setError("An unexpected error occurred. Please try again later.");
+    }
+  };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white sm:bg-white lg:bg-black/60"
       aria-hidden="true"
     >
       <div className="relative w-full max-w-md max-h-full overflow-y-auto">
@@ -43,17 +88,25 @@ const SignInModal = ({ isOpen, closeModal }: SignInModalProps) => {
             </button>
           </div>
           <div className="flex flex-col items-center justify-center p-4 mx-2 md:p-5 border-b rounded-t border-gray-200">
-            <p className="text-6xl font-extrabold cursor-pointer logo pb-8 ">
+            <p className="text-6xl font-extrabold cursor-pointer logo pb-8">
               Настан<span className="text-accent font-semibold">.мк</span>
             </p>
             <h1 className="text-3xl p-2">Најави се</h1>
-            <h2>
+            <h2 className="text-base">
               Се уште не сте член?
-              <span className="text-accent2">Регистрирај се</span>
+              <span
+                onClick={() => {
+                  closeModal(); // Close the sign-in modal
+                  openRegisterModal(); // Open the register modal
+                }}
+                className="text-accent2 cursor-pointer pl-1"
+              >
+                Регистрирај се
+              </span>
             </h2>
           </div>
 
-          <div className="flex flex-col p-6">
+          <form onSubmit={handleEmailSignIn} className="flex flex-col p-6">
             <div>
               <label
                 htmlFor="email"
@@ -65,9 +118,10 @@ const SignInModal = ({ isOpen, closeModal }: SignInModalProps) => {
                 type="email"
                 name="email"
                 id="email"
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-3 outline-accent2 "
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2 "
                 placeholder="име@маил.com"
-                required
               />
             </div>
             <div>
@@ -81,22 +135,30 @@ const SignInModal = ({ isOpen, closeModal }: SignInModalProps) => {
                 type="password"
                 name="password"
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••••"
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-3 outline-accent2"
+                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
                 required
               />
             </div>
-            <button className="mt-4 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold">
+            {error && <p className="text-red-500 text-sm">{error}</p>}{" "}
+            {/* Show error */}
+            <button
+              type="submit"
+              className="mt-4 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold"
+            >
               Најави се
             </button>
-          </div>
+          </form>
+
+          {/* Social Sign-in Buttons */}
           <div className="flex justify-between w-full items-center p-2">
             <div className="w-full border-b border-gray-200"></div>
             <span className="px-3 text-gray-600">или</span>
             <div className="w-full border-b border-gray-200"></div>
           </div>
 
-          {/* Social Sign-in Buttons */}
           <div className="p-4 md:p-5">
             <div className="space-y-6">
               <button

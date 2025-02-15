@@ -44,7 +44,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="w-[80%] md:w-[50%] lg:w-[80%]">
+      <div className="w-[90%] md:w-[50%] lg:w-[90%]">
         <Hero />
         <SearchBox
           setSearchResults={setSearchResults}

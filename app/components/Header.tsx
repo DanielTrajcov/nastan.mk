@@ -41,25 +41,25 @@ function Header() {
               />
               {/* Sliding Menu */}
               <motion.div
-                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-center gap-2 py-16"
+                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-start gap-2 py-16 text-xl"
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
               >
                 <button
-                  className="absolute top-2 right-2 text-4xl text-gray-900"
+                  className="absolute top-3 right-4 text-3xl text-gray-900"
                   onClick={() => setNavOpen(false)}
                 >
                   <HiXMark />
                 </button>
-                <button className="absolute top-2 left-2">
+                <button className="absolute top-3 left-4">
                   <LogoButton />
                 </button>
                 {!session ? (
                   <>
-                    <SignInButton />
                     <RegisterButton />
+                    <SignInButton />
                   </>
                 ) : (
                   <>

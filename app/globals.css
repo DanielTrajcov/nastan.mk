@@ -1,9 +1,10 @@
 @import url(https://db.onlinewebfonts.com/c/512223f2ac461e5d32b2273265e49209?family=Biro+Script+Plus+Sloppy+US);
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 
 
 :root {

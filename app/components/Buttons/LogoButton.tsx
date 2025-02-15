@@ -5,7 +5,7 @@ const LogoButton = () => {
   return (
     <>
       <Link href="/">
-        <p className="text-4xl font-semibold cursor-pointer logo">
+        <p className="text-2xl sm:text-2xl lg:text-4xl font-extrabold cursor-pointer logo">
           Настан<span className="text-accent font-semibold">.мк</span>
         </p>
       </Link>

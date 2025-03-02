@@ -41,7 +41,7 @@ function Header() {
               />
               {/* Sliding Menu */}
               <motion.div
-                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-start gap-2 py-16 text-xl"
+                className="fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-lg z-50 flex flex-col items-center justify-center gap-2 py-16 text-xl"
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}

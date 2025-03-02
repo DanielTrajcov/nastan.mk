@@ -44,6 +44,21 @@ const Form: React.FC<FormProps> = () => {
   const [manualAddress, setManualAddress] = useState("");
   const [zipCode, setZipCode] = useState("");
 
+  // Default system date and time
+  const [currentDate, setCurrentDate] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState<string>("");
+
+  useEffect(() => {
+    const now = new Date();
+    // Set default date (YYYY-MM-DD)
+    const dateStr = now.toISOString().split("T")[0];
+    setCurrentDate(dateStr);
+
+    // Set default time (HH:MM)
+    const timeStr = now.toTimeString().split(" ")[0].slice(0, 5);
+    setCurrentTime(timeStr);
+  }, []);
+
   useEffect(() => {
     if (session) {
       setInputs({
@@ -235,6 +250,7 @@ const Form: React.FC<FormProps> = () => {
             name="date"
             required
             onChange={handleChange}
+            value={currentDate} // Set the default value from state
             className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
@@ -243,14 +259,15 @@ const Form: React.FC<FormProps> = () => {
             name="time"
             required
             onChange={handleChange}
+            value={currentTime} // Set the default value from state
             className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
           <div className="mb-4 flex justify-between gap-5">
             <label
-              className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
+              className={`text-base border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "automatic"
-                  ? " border-y-accent border-x-accent border-r-8"
+                  ? "border-y-accent border-x-accent border-r-8"
                   : ""
               }`}
             >
@@ -265,7 +282,7 @@ const Form: React.FC<FormProps> = () => {
             </label>
 
             <label
-              className={`text-lg border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
+              className={`text-base border-[0.5px] border-gray-400 p-2 rounded-md cursor-pointer w-[50%] text-center ${
                 addressMethod === "manual"
                   ? "border-y-accent border-x-accent border-r-8"
                   : ""

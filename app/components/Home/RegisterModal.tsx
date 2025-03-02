@@ -2,9 +2,14 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
+import defaultImage from "../../../public/Images/BasketBall.png";
 import Image from "next/image";
-import { auth } from "../../shared/firebaseConfig"; // Correct path to firebaseConfig
-import { createUserWithEmailAndPassword } from "firebase/auth"; // Import createUserWithEmailAndPassword from firebase/auth
+import { auth, firestore } from "../../shared/firebaseConfig"; // Correct path to firebaseConfig
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth"; // Import createUserWithEmailAndPassword from firebase/auth
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -15,7 +20,7 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
   if (!isOpen) return null;
 
   // Local state to manage form inputs and errors
-  const [name, setName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -32,19 +37,27 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
         auth,
         email,
         password
-      ); // Use auth from firebaseConfig
+      );
 
-      // Save additional user info in Firestore (optional)
-      // firestore.collection("users").doc(userCredential.user.uid).set({
-      //   name,
-      //   email,
-      //   createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      // });
+      // Save additional user info in Firestore
+      await setDoc(doc(firestore, "users", userCredential.user.uid), {
+        userName,
+        email,
+        userImage: defaultImage, // Adding the default image
+        createdAt: serverTimestamp(), // Server timestamp from Firestore
+      });
 
-      // Close the modal after successful registration
+      // Optional: Sign in the user after registration
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // Close modal after successful registration
       closeModal();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -102,8 +115,8 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
                 type="text"
                 name="name"
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
                 className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
                 placeholder="Петко Петковски"
                 required

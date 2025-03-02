@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Data from "@/app/shared/Data";
 import { useSession } from "next-auth/react";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
-import app from "../../shared/firebaseConfig";
+import { app } from "../../shared/firebaseConfig";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";

@@ -8,7 +8,7 @@ import {
 import Image from "next/image";
 import { Post } from "../../types/Post";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
-import app from "../../shared/firebaseConfig";
+import { app } from "../../shared/firebaseConfig";
 import { toast } from "react-hot-toast";
 
 interface PostItemProps {
@@ -53,7 +53,7 @@ const PostItem: React.FC<PostItemProps> = ({
   const saveEdit = async () => {
     if (!editedPost.id) return;
     const postRef = doc(db, "posts", editedPost.id);
-  
+
     try {
       await updateDoc(postRef, {
         title: editedPost.title,
@@ -62,14 +62,13 @@ const PostItem: React.FC<PostItemProps> = ({
         location: editedPost.location,
         desc: editedPost.desc,
       });
-  
+
       toast.success("Постот е успешно изменет!");
       setIsEditing(false);
     } catch {
       toast.error("Грешка при ажурирање на постот.");
     }
   };
-  
 
   return (
     <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer h-auto mb-2">

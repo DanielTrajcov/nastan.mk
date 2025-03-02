@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState, useCallback } from "react";
-import app from "../shared/firebaseConfig";
+import { app } from "../shared/firebaseConfig";
 import {
   collection,
   query,

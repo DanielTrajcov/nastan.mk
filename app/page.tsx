@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Posts from "./components/Home/Posts";
 import SearchBox from "./components/Home/SearchBox";
-import app from "./shared/firebaseConfig";
+import { app } from "./shared/firebaseConfig";
 import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { Post } from "./types/Post";
 import Hero from "./components/Home/Hero";

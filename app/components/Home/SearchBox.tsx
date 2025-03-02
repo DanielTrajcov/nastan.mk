@@ -6,7 +6,7 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-import app from "../../shared/firebaseConfig";
+import { app } from "../../shared/firebaseConfig";
 import { Post } from "./../../types/Post";
 import { toast } from "react-hot-toast";
 import { HiMagnifyingGlass } from "react-icons/hi2";
@@ -23,7 +23,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   const [zipCodeInput, setZipCodeInput] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();  
+    e.preventDefault();
     const zip = zipCodeInput.trim();
 
     if (zip.length !== 4) {
@@ -31,7 +31,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
       return;
     }
 
-    setZipCode(zip);  
+    setZipCode(zip);
 
     const db = getFirestore(app);
 
@@ -65,7 +65,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           maxLength={4}
           value={zipCodeInput}
           onChange={(e) => setZipCodeInput(e.target.value)}
-          className="block w-full p-4 text-md text-black shadow-md rounded-lg bg-white outline-accent pr-12" 
+          className="block w-full p-4 text-md text-black shadow-md rounded-lg bg-white outline-accent pr-12"
           placeholder="Внесете Zip код..."
           required
         />
@@ -73,7 +73,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           type="submit"
           className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-accent-hover focus:outline-none"
         >
-          <HiMagnifyingGlass size={24} /> 
+          <HiMagnifyingGlass size={24} />
         </button>
       </form>
     </div>

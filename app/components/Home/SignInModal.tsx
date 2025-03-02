@@ -16,11 +16,13 @@ const SignInModal = ({
   closeModal,
   openRegisterModal,
 }: SignInModalProps) => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>(""); // Email input state
+  const [password, setPassword] = useState<string>(""); // Password input state
+  const [error, setError] = useState<string | null>(null); // Error state
+  const [loading, setLoading] = useState<boolean>(false); // Loading state for the sign-in process
 
   if (!isOpen) return null;
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -30,9 +32,11 @@ const SignInModal = ({
       return;
     }
 
+    setLoading(true); // Set loading to true while processing the sign-in
+
     try {
       const res = await signIn("credentials", {
-        redirect: false, // Keep false to prevent auto-redirect
+        redirect: false, // Prevent automatic redirect
         email,
         password,
       });
@@ -40,19 +44,21 @@ const SignInModal = ({
       console.log("Sign-in response:", res); // Log the entire response for debugging
 
       if (res?.error) {
-        console.error("Sign-in error:", res.error); // Log error message for debugging
-        setError(res.error); // Show the error to the user
+        console.error("Sign-in error:", res.error); // Log the error message for debugging
+        setError(res.error); // Display the error to the user
       } else {
-        // Handle success (redirect user or close modal)
+        // Handle success (close modal or redirect)
         console.log("Sign-in successful:", res);
-        closeModal(); // Close modal or redirect as needed
-        // Optionally, handle user redirection after successful sign-in
-        // For example, you could redirect the user to the home page or dashboard:
+        closeModal(); // Close modal on successful sign-in
+
+        // Optionally, you can redirect the user to a different page or dashboard:
         // router.push("/dashboard");
       }
     } catch (error) {
       console.error("Unexpected error during sign-in:", error); // Log any unexpected errors
       setError("An unexpected error occurred. Please try again later.");
+    } finally {
+      setLoading(false); // Set loading to false after sign-in attempt
     }
   };
 
@@ -67,7 +73,7 @@ const SignInModal = ({
             <button
               type="button"
               onClick={closeModal}
-              className="text-gray-800 bg-transparent hover:bg-gray-100 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center "
+              className="text-gray-800 bg-transparent hover:bg-gray-100 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
             >
               <svg
                 className="w-4 h-4"
@@ -87,6 +93,7 @@ const SignInModal = ({
               <span className="sr-only">Close modal</span>
             </button>
           </div>
+
           <div className="flex flex-col items-center justify-center p-4 mx-2 md:p-5 border-b rounded-t border-gray-200">
             <p className="text-6xl font-extrabold cursor-pointer logo pb-8">
               Настан<span className="text-accent font-semibold">.мк</span>
@@ -110,7 +117,7 @@ const SignInModal = ({
             <div>
               <label
                 htmlFor="email"
-                className="p-1 text-sm font-semibold text-gray-600 "
+                className="p-1 text-sm font-semibold text-gray-600"
               >
                 Е-маил
               </label>
@@ -120,14 +127,14 @@ const SignInModal = ({
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2 "
+                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
                 placeholder="име@маил.com"
               />
             </div>
             <div>
               <label
                 htmlFor="password"
-                className="p-1 text-sm font-semibold text-gray-600 "
+                className="p-1 text-sm font-semibold text-gray-600"
               >
                 Пасворд
               </label>
@@ -146,9 +153,10 @@ const SignInModal = ({
             {/* Show error */}
             <button
               type="submit"
+              disabled={loading} // Disable button while loading
               className="mt-4 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold"
             >
-              Најави се
+              {loading ? "Најави се..." : "Најави се"} {/* Show loading text */}
             </button>
           </form>
 

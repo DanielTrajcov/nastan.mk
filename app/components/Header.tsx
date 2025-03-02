@@ -87,7 +87,7 @@ function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-2">
-          {session?.user?.image && (
+          {session?.user?.email && (
             <div className="flex items-center gap-2">
               <CreatePostButton />
               <ProfileButton />

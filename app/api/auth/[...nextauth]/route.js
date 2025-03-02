@@ -62,7 +62,7 @@ const handler = NextAuth({
   debug: true,  // Enable debug logging
 
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       const db = firestore;  // Use the initialized Firestore instance
 
       // Check if the user is signing in with Google or Facebook

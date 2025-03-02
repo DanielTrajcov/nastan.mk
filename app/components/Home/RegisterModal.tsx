@@ -17,14 +17,15 @@ interface RegisterModalProps {
 }
 
 const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
-  if (!isOpen) return null;
-
-  // Local state to manage form inputs and errors
+  // Move state hooks before conditional return
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Conditional rendering should be after hooks to avoid hook issues
+  if (!isOpen) return null;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

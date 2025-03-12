@@ -4,11 +4,12 @@ import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import defaultImage from "../../../public/Images/BasketBall.png";
 import Image from "next/image";
-import { auth, firestore } from "../../shared/firebaseConfig"; // Correct path to firebaseConfig
+import { auth, firestore } from "../../shared/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
+  updateProfile, // Import the updateProfile function
   signInWithEmailAndPassword,
-} from "firebase/auth"; // Import createUserWithEmailAndPassword from firebase/auth
+} from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface RegisterModalProps {
@@ -17,14 +18,12 @@ interface RegisterModalProps {
 }
 
 const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
-  // Move state hooks before conditional return
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Conditional rendering should be after hooks to avoid hook issues
   if (!isOpen) return null;
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -33,19 +32,25 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
     setError(null);
 
     try {
-      // Register the user using Firebase Authentication
+      // Step 1: Create the user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      // Save additional user info in Firestore
+      // Step 2: Update the user profile
+      await updateProfile(userCredential.user, {
+        displayName: userName, // Set the displayName to the user input
+        photoURL: defaultImage.src, // Set the photoURL to the default image
+      });
+
+      // Step 3: Save additional user info in Firestore
       await setDoc(doc(firestore, "users", userCredential.user.uid), {
         userName,
         email,
-        userImage: defaultImage, // Adding the default image
-        createdAt: serverTimestamp(), // Server timestamp from Firestore
+        userImage: defaultImage.src, // Add the default image URL to Firestore
+        createdAt: serverTimestamp(),
       });
 
       // Optional: Sign in the user after registration

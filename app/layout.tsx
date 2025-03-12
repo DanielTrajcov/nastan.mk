@@ -5,12 +5,6 @@ import Header from "./components/Header";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
 
-// const geistMono = localFont({
-//   src: "./fonts/GeistMonoVF.woff",
-//   variable: "--font-geist-mono",
-//   weight: "100 900",
-// });
-
 export const metadata: Metadata = {
   title: "Настан.мк",
   description: "Create by Daniel",
@@ -27,7 +21,7 @@ export default function RootLayout({
         <Provider>
           <Header />
           {children}
-          <Toaster reverseOrder={false} />
+          <Toaster />
           <Footer />
         </Provider>
       </body>

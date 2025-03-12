@@ -10,6 +10,7 @@ import { Post } from "../../types/Post";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 import { app } from "../../shared/firebaseConfig";
 import { toast } from "react-hot-toast";
+import defaultImage from "../../../public/Images/default-user.svg";
 
 interface PostItemProps {
   post: Post;
@@ -173,10 +174,18 @@ const PostItem: React.FC<PostItemProps> = ({
         </div>
         {showModal && (
           <div className="flex gap-2 py-2">
-            {post.userImage && (
+            {post.userImage ? (
               <Image
                 src={post.userImage}
                 alt="User Profile"
+                width={50}
+                height={50}
+                className="rounded-full"
+              />
+            ) : (
+              <Image
+                src={defaultImage}
+                alt="Default User Profile"
                 width={50}
                 height={50}
                 className="rounded-full"

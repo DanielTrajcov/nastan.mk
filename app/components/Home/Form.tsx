@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Post } from "../../types/Post";
+import defaultImage from "../../../public/Images/default-user.svg";
 
 interface Inputs {
   title?: string;
@@ -63,7 +64,6 @@ const Form: React.FC<FormProps> = () => {
     if (session) {
       setInputs({
         userName: session.user?.name,
-        userImage: session.user?.image,
         email: session.user?.email,
       });
     }
@@ -105,8 +105,9 @@ const Form: React.FC<FormProps> = () => {
 
     const storageRef = ref(storage, "posts/" + file.name);
     try {
+      // Upload the post image
       await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
+      const postImageUrl = await getDownloadURL(storageRef);
 
       const selectedDate = new Date(inputs.date || Date.now());
       const formattedDate = selectedDate.toLocaleDateString("en-US", {
@@ -116,10 +117,18 @@ const Form: React.FC<FormProps> = () => {
       });
 
       const createdAt = Date.now();
+
+      // Use `session.user.image` for the user profile image (Firebase should set this during authentication)
+      const userImage = session?.user?.image || ""; // Fallback to empty string if image is not available
+      if (!userImage) {
+        toast.error("User image not available, using default image.");
+      }
+
       const postData = {
         ...inputs,
         date: formattedDate,
-        image: url,
+        image: postImageUrl, // The image from the file upload
+        userImage: userImage, // Store the user's profile image URL
         createdAt: createdAt,
         location: addressMethod === "automatic" ? location : manualAddress,
         zip: zipCode,
@@ -127,7 +136,9 @@ const Form: React.FC<FormProps> = () => {
         longitude: longitude,
       };
 
+      // Save the post data to Firestore
       await setDoc(doc(db, "posts", createdAt.toString()), postData);
+
       toast.custom((t) => (
         <div
           className={`${
@@ -138,7 +149,7 @@ const Form: React.FC<FormProps> = () => {
             <div className="flex items-start">
               <div className="flex-shrink-0 pt-0.5">
                 <Image
-                  src={session?.user?.image || ""}
+                  src={userImage || defaultImage} // Use the userImage or fallback to a default image
                   width={42}
                   height={42}
                   alt="UserImage"
@@ -165,6 +176,8 @@ const Form: React.FC<FormProps> = () => {
           </div>
         </div>
       ));
+
+      // Redirect user after successful post creation
       router.push("/");
     } catch (error) {
       console.error("Грешка при креирање на пост:", error);

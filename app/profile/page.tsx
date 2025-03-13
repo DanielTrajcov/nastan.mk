@@ -63,7 +63,7 @@ const Profile = () => {
           <p>Дали сакате да го избришете овој пост?</p>
           <div className="flex space-x-4 py-4">
             <button
-              className=" text-white p-2 rounded-lg bg-red-500 border-b-2 w-[50%] "
+              className=" text-white p-2 rounded-lg bg-accent border-b-2 w-[50%] "
               onClick={async () => {
                 const postRef = doc(db, "posts", postId);
                 await deleteDoc(postRef);
@@ -92,7 +92,7 @@ const Profile = () => {
 
   return (
     <div className="flex justify-center min-h-screen p-6">
-      <div className="w-full max-w-[70%] md:max-w-[60%] lg:max-w-[100%]">
+      <div className="w-full">
         <h2 className="text-[30px] font-extrabold text-accent text-center">
           Профил
         </h2>

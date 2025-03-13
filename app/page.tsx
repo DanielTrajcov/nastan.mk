@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import Posts from "./components/Home/Posts";
 import SearchBox from "./components/Home/SearchBox";
 import { app } from "./shared/firebaseConfig";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { Post } from "./types/Post";
 import Hero from "./components/Home/Hero";
 
@@ -18,7 +24,9 @@ export default function Home() {
       try {
         setLoading(true);
         const db = getFirestore(app);
-        const querySnapshot = await getDocs(collection(db, "posts"));
+        const querySnapshot = await getDocs(
+          query(collection(db, "posts"), orderBy("createdAt", "desc"))
+        );
         const posts: Post[] = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -44,7 +52,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="w-[90%] md:w-[50%] lg:w-[90%]">
+      <div className="w-[95%] md:w-[95%] lg:w-[95%]">
         <Hero />
         <SearchBox
           setSearchResults={setSearchResults}

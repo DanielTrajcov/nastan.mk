@@ -105,7 +105,6 @@ const Form: React.FC<FormProps> = () => {
 
     const storageRef = ref(storage, "posts/" + file.name);
     try {
-      // Upload the post image
       await uploadBytes(storageRef, file);
       const postImageUrl = await getDownloadURL(storageRef);
 
@@ -118,8 +117,7 @@ const Form: React.FC<FormProps> = () => {
 
       const createdAt = Date.now();
 
-      // Use `session.user.image` for the user profile image (Firebase should set this during authentication)
-      const userImage = session?.user?.image || ""; // Fallback to empty string if image is not available
+      const userImage = session?.user?.image || "";
       if (!userImage) {
         toast.error("User image not available, using default image.");
       }
@@ -127,8 +125,8 @@ const Form: React.FC<FormProps> = () => {
       const postData = {
         ...inputs,
         date: formattedDate,
-        image: postImageUrl, // The image from the file upload
-        userImage: userImage, // Store the user's profile image URL
+        image: postImageUrl,
+        userImage: userImage,
         createdAt: createdAt,
         location: addressMethod === "automatic" ? location : manualAddress,
         zip: zipCode,
@@ -136,7 +134,6 @@ const Form: React.FC<FormProps> = () => {
         longitude: longitude,
       };
 
-      // Save the post data to Firestore
       await setDoc(doc(db, "posts", createdAt.toString()), postData);
 
       toast.custom((t) => (
@@ -149,7 +146,7 @@ const Form: React.FC<FormProps> = () => {
             <div className="flex items-start">
               <div className="flex-shrink-0 pt-0.5">
                 <Image
-                  src={userImage || defaultImage} // Use the userImage or fallback to a default image
+                  src={userImage || defaultImage}
                   width={42}
                   height={42}
                   alt="UserImage"
@@ -177,7 +174,6 @@ const Form: React.FC<FormProps> = () => {
         </div>
       ));
 
-      // Redirect user after successful post creation
       router.push("/");
     } catch (error) {
       console.error("Грешка при креирање на пост:", error);
@@ -240,7 +236,7 @@ const Form: React.FC<FormProps> = () => {
   return (
     <div>
       <div className="mt-4">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col">
           <input
             type="text"
             name="title"
@@ -263,7 +259,7 @@ const Form: React.FC<FormProps> = () => {
             name="date"
             required
             onChange={handleChange}
-            value={currentDate} // Set the default value from state
+            value={currentDate}
             className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
@@ -272,7 +268,7 @@ const Form: React.FC<FormProps> = () => {
             name="time"
             required
             onChange={handleChange}
-            value={currentTime} // Set the default value from state
+            value={currentTime}
             className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           />
 
@@ -347,13 +343,16 @@ const Form: React.FC<FormProps> = () => {
             onChange={handleChange}
             className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
           >
-            <option disabled value="">
+            <option value="" disabled selected>
               Изберете категорија
             </option>
             {Data.GameList.map((item) => (
-              <option key={item.id}>{item.name}</option>
+              <option key={item.id} value={item.name}>
+                {item.name}
+              </option>
             ))}
           </select>
+
           <input
             type="file"
             onChange={handleFileChange}

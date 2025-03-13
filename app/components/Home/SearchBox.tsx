@@ -26,11 +26,6 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     e.preventDefault();
     const zip = zipCodeInput.trim();
 
-    if (zip.length !== 4) {
-      setSearchResults([]);
-      return;
-    }
-
     setZipCode(zip);
 
     const db = getFirestore(app);

@@ -1,17 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
-import SignInButton from "./Buttons/SignInButton";
-import SignOutButton from "./Buttons/SignOutButton";
-import CreatePostButton from "./Buttons/CreatePostButton";
+import SignInButton from "../Buttons/SignInButton";
+import SignOutButton from "../Buttons/SignOutButton";
+import CreatePostButton from "../Buttons/CreatePostButton";
 import { HiBars3, HiXMark } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
-import LogoButton from "./Buttons/LogoButton";
-import ProfileButton from "./Buttons/ProfileButton";
-import RegisterButton from "./Buttons/RegisterButton";
+import LogoButton from "../Buttons/LogoButton";
+import ProfileButton from "../Buttons/ProfileButton";
+import RegisterButton from "../Buttons/RegisterButton";
+import useAuthRedirect from "../../session/useAuthRedirect";
 
 function Header() {
-  const { data: session } = useSession();
+  const { session } = useAuthRedirect();
   const [isNavOpen, setNavOpen] = useState(false);
 
   return (

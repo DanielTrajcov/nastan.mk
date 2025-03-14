@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "./Provider";
-import Header from "./components/Header";
+import Header from "./components/Nav/Header";
+import Footer from "./components/Nav/Footer";
 import { Toaster } from "react-hot-toast";
-import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: "Настан.мк",

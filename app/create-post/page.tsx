@@ -1,32 +1,20 @@
 "use client";
-import { useSession } from "next-auth/react";
 import { Post } from "../types/Post";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Form from "../components/Home/Form";
-import { toast } from "react-hot-toast";
+import useAuthRedirect from "../session/useAuthRedirect";
 
 const CreatePost = () => {
-  const { data: session } = useSession();
-  const router = useRouter();
-
+  useAuthRedirect();
   const defaultPost: Post = {
     id: "",
     title: "",
     location: "",
     image: "",
-    date: "", 
-    time: "", 
+    date: "",
+    time: "",
     desc: "",
-    createdAt: Date.now(), 
+    createdAt: Date.now(),
   };
-
-  useEffect(() => {
-    if (!session) {
-      router.push("/");
-      toast.error("Најавете се за да креирате настан!");
-    }
-  }, [session, router]);
 
   return (
     <div className="flex justify-center items-center">

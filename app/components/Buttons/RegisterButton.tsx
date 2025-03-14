@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import RegisterModal from "../Home/RegisterModal";
+import RegisterModal from "../User/RegisterModal";
 
 const RegisterButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import SignInModal from "../Home/SignInModal";
-import RegisterModal from "../Home/RegisterModal";
+import SignInModal from "../User/SignInModal";
+import RegisterModal from "../User/RegisterModal";
 
 const SignInButton = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Sign-in modal state

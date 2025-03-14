@@ -1,5 +1,4 @@
 "use client";
-import { useSession } from "next-auth/react";
 import React, { useEffect, useState, useCallback } from "react";
 import { app } from "../shared/firebaseConfig";
 import {
@@ -15,12 +14,14 @@ import PostItem from "../components/Home/PostItem";
 import { Post } from "../types/Post";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import useAuthRedirect from "../session/useAuthRedirect";
 
 const Profile = () => {
-  const { data: session, status } = useSession();
   const [userPost, setUserPost] = useState<Post[]>([]);
   const db = getFirestore(app);
   const router = useRouter();
+
+  const { session, status } = useAuthRedirect();
 
   const getUserPost = useCallback(async () => {
     if (session?.user?.email) {

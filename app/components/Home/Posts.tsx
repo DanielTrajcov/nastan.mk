@@ -1,25 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation"; // Import useRouter hook
 import { Post } from "../../types/Post";
 import PostItem from "./PostItem";
-import PostModal from "./PostModal";
 
 interface PostsProps {
   searchResults: Post[];
-  zipCode: string;
   allPosts: Post[];
+  zipCode: string;
 }
 
 const Posts: React.FC<PostsProps> = ({ searchResults, allPosts }) => {
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const router = useRouter(); // Initialize the router
 
   const displayPosts = searchResults.length > 0 ? searchResults : allPosts;
 
   const handlePostClick = (post: Post) => {
-    setSelectedPost(post);
-  };
-
-  const closeModal = () => {
-    setSelectedPost(null);
+    // Navigate to the new post details page
+    router.push(`/post/${post.id}`);
   };
 
   return (
@@ -33,10 +30,6 @@ const Posts: React.FC<PostsProps> = ({ searchResults, allPosts }) => {
             ))
           : null}
       </div>
-
-      {selectedPost && (
-        <PostModal post={selectedPost} closeModal={closeModal} />
-      )}
     </div>
   );
 };

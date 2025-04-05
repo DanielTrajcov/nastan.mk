@@ -1,16 +1,12 @@
-import React, { useState } from "react";
-import { HiOutlineLocationMarker, HiOutlineCalendar } from "react-icons/hi";
-import {
-  HiMiniPencilSquare,
-  HiOutlineClock,
-  HiOutlineTrash,
-} from "react-icons/hi2";
+import React, { useState, useEffect } from "react";
+import { HiMiniPencilSquare, HiOutlineTrash } from "react-icons/hi2";
 import Image from "next/image";
 import { Post } from "../../types/Post";
 import { doc, updateDoc, getFirestore } from "firebase/firestore";
 import { app } from "../../shared/firebaseConfig";
 import { toast } from "react-hot-toast";
 import defaultImage from "../../../public/Images/default-user.svg";
+import { CiCalendar, CiClock2, CiLocationOn } from "react-icons/ci";
 
 interface PostItemProps {
   post: Post;
@@ -28,42 +24,63 @@ const PostItem: React.FC<PostItemProps> = ({
   const db = getFirestore(app);
   const [isEditing, setIsEditing] = useState(false);
   const [editedPost, setEditedPost] = useState<Post>({ ...post });
+  const [currentDate, setCurrentDate] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState<string>("");
+  const [displayDate, setDisplayDate] = useState("");
+
+  useEffect(() => {
+    const now = new Date();
+    const dateStr = now.toISOString().split("T")[0];
+    const timeStr = now.toTimeString().split(" ")[0].slice(0, 5);
+    const mkDate = now.toLocaleDateString("mk-MK", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    setCurrentDate(dateStr);
+    setCurrentTime(timeStr);
+    setDisplayDate(mkDate);
+  }, []);
 
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
     const secondsAgo = Math.floor((now - timestamp) / 1000);
 
-    if (secondsAgo < 60) {
-      return `пред ${secondsAgo} секунди `;
-    } else if (secondsAgo < 3600) {
-      const minutes = Math.floor(secondsAgo / 60);
-      return ` пред  ${minutes} минути`;
-    } else if (secondsAgo < 86400) {
-      const hours = Math.floor(secondsAgo / 3600);
-      return `пред ${hours} часа `;
-    } else {
-      const days = Math.floor(secondsAgo / 86400);
-      return `пред ${days} дена `;
-    }
+    if (secondsAgo < 60) return `пред ${secondsAgo} секунди`;
+    if (secondsAgo < 3600) return `пред ${Math.floor(secondsAgo / 60)} минути`;
+    if (secondsAgo < 86400) return `пред ${Math.floor(secondsAgo / 3600)} часа`;
+    return `пред ${Math.floor(secondsAgo / 86400)} дена`;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedPost({ ...editedPost, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setEditedPost((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "date") {
+      const selectedDate = new Date(value);
+      const mkDate = selectedDate.toLocaleDateString("mk-MK", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      setDisplayDate(mkDate);
+    }
   };
 
   const saveEdit = async () => {
     if (!editedPost.id) return;
-    const postRef = doc(db, "posts", editedPost.id);
 
     try {
-      await updateDoc(postRef, {
+      await updateDoc(doc(db, "posts", editedPost.id), {
         title: editedPost.title,
-        date: editedPost.date,
-        time: editedPost.time,
+        date: displayDate,
+        time: editedPost.time || currentTime,
         location: editedPost.location,
         desc: editedPost.desc,
       });
-
       toast.success("Постот е успешно изменет!");
       setIsEditing(false);
     } catch {
@@ -94,7 +111,7 @@ const PostItem: React.FC<PostItemProps> = ({
               value={editedPost.title}
               onChange={handleChange}
               maxLength={28}
-              className="border p-2 rounded-md w-full "
+              className="border p-2 rounded-md w-full"
             />
           ) : (
             <h5 className="mb-2 text-2xl font-bold text-black whitespace-normal overflow-hidden min-h-16">
@@ -103,63 +120,60 @@ const PostItem: React.FC<PostItemProps> = ({
           )}
         </div>
 
-        <div className="flex items-center text-gray-500 gap-2 mb-2">
-          <HiOutlineCalendar className="text-[20px]" />
+        <div className="flex items-center font-light gap-2 mb-2">
+          <CiCalendar className="text-2xl" />
           {isEditing ? (
-            <input
-              type="date"
-              name="date"
-              value={editedPost.date}
-              onChange={handleChange}
-              className="border p-1 rounded-md w-full"
-            />
+            <div className="flex items-center gap-2 w-full">
+              <input
+                type="date"
+                name="date"
+                value={editedPost.date || currentDate}
+                onChange={handleChange}
+                className="border p-1 rounded-md"
+              />
+            </div>
           ) : (
-            post.date
+            post.date || displayDate
           )}
         </div>
-        <div className="flex items-center text-gray-500 gap-2 mb-2">
-          <HiOutlineClock className="text-[20px]" />
+
+        <div className="flex items-center font-light gap-2 mb-2">
+          <CiClock2 className="text-2xl" />
           {isEditing ? (
             <input
               type="time"
               name="time"
-              value={editedPost.time}
+              value={editedPost.time || currentTime}
               onChange={handleChange}
-              className="border p-1 rounded-md w-full"
+              className="border p-1 rounded-md"
             />
           ) : (
-            post.time
+            post.time || currentTime
           )}
         </div>
-        <div className="flex items-center text-gray-500 gap-2 mb-2">
-          <HiOutlineLocationMarker className="text-[20px]" />
+
+        <div className="flex items-center font-light gap-2 mb-2">
+          <CiLocationOn className="text-2xl" />
           {isEditing ? (
             <input
               type="text"
               name="location"
               value={editedPost.location}
               onChange={handleChange}
-              className="border p-2 w-full rounded-md"
+              className="border p-1 rounded-md"
             />
           ) : (
-            <a
-              href={`https://maps.google.com/?q=${encodeURIComponent(
-                post.location
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="whitespace-nowrap overflow-hidden text-ellipsis max-w-xs"
-            >
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis">
               {post.location}
-            </a>
+            </p>
           )}
         </div>
-        <p className="mb-3 font-normal text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis max-w-x">
+
+        <p className="mb-3 font-light whitespace-nowrap overflow-hidden text-ellipsis max-w-x">
           {isEditing ? (
             <input
               type="text"
               name="desc"
-              maxLength={75}
               value={editedPost.desc}
               onChange={handleChange}
               className="border p-2 w-full rounded-md"
@@ -168,10 +182,12 @@ const PostItem: React.FC<PostItemProps> = ({
             post.desc
           )}
         </p>
-        <div className="flex gap-2 mb-3 border p-2 rounded-md bg-gray-200 w-full">
-          <HiOutlineClock className="text-[20px]" />
+
+        <div className="flex gap-2 border p-2 rounded-md bg-gray-200 w-full font-light">
+          <CiClock2 className="text-2xl" />
           {post.createdAt ? formatTimeAgo(post.createdAt) : "Непозната дата"}
         </div>
+
         {showModal && (
           <div className="flex gap-2 py-2">
             {post.userImage ? (
@@ -197,6 +213,7 @@ const PostItem: React.FC<PostItemProps> = ({
             </div>
           </div>
         )}
+
         {!isEditing && onDelete && (
           <button
             onClick={onDelete}
@@ -206,17 +223,18 @@ const PostItem: React.FC<PostItemProps> = ({
             <HiOutlineTrash className="text-3xl text-red-500" />
           </button>
         )}
+
         {isEditing ? (
           <div className="flex gap-2">
             <button
               onClick={saveEdit}
-              className="mt-3 flex-1 p-2 text-[20px] font-medium text-center text-black  rounded-md border-gray-500 border-b-2"
+              className="mt-3 flex-1 p-2 text-[20px] font-medium text-center text-black rounded-md border-gray-500 border-b-2"
             >
               Зачувај
             </button>
             <button
               onClick={() => setIsEditing(false)}
-              className="mt-3 flex-1 p-2 text-[20px] font-medium text-center text-black  rounded-md border-gray-500 border-b-2"
+              className="mt-3 flex-1 p-2 text-[20px] font-medium text-center text-black rounded-md border-gray-500 border-b-2"
             >
               Откажи
             </button>

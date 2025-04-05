@@ -20,12 +20,6 @@ interface Inputs {
   game?: string;
   [key: string]: unknown;
 }
-interface AddressComponent {
-  long_name: string;
-  short_name: string;
-  types: string[];
-}
-
 interface FormProps {
   post: Post;
 }
@@ -45,12 +39,14 @@ const Form: React.FC<FormProps> = () => {
   const [manualAddress, setManualAddress] = useState("");
   const [zipCode, setZipCode] = useState("");
 
-  // Default system date and time
+  // Date states
   const [currentDate, setCurrentDate] = useState<string>("");
   const [currentTime, setCurrentTime] = useState<string>("");
+  const [displayDate, setDisplayDate] = useState("");
 
   useEffect(() => {
     const now = new Date();
+
     // Set default date (YYYY-MM-DD)
     const dateStr = now.toISOString().split("T")[0];
     setCurrentDate(dateStr);
@@ -58,6 +54,15 @@ const Form: React.FC<FormProps> = () => {
     // Set default time (HH:MM)
     const timeStr = now.toTimeString().split(" ")[0].slice(0, 5);
     setCurrentTime(timeStr);
+
+    // Set Macedonian formatted date
+    const mkDate = now.toLocaleDateString("mk-MK", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    setDisplayDate(mkDate);
   }, []);
 
   useEffect(() => {
@@ -77,6 +82,16 @@ const Form: React.FC<FormProps> = () => {
     const name = e.target.name;
     const value = e.target.value;
     setInputs((values) => ({ ...values, [name]: value }));
+
+    if (name === "date") {
+      const mkDate = new Date(value).toLocaleDateString("mk-MK", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      setDisplayDate(mkDate);
+    }
 
     if (name === "manualAddress") {
       setManualAddress(value);
@@ -108,25 +123,17 @@ const Form: React.FC<FormProps> = () => {
       await uploadBytes(storageRef, file);
       const postImageUrl = await getDownloadURL(storageRef);
 
-      const selectedDate = new Date(inputs.date || Date.now());
-      const formattedDate = selectedDate.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-
       const createdAt = Date.now();
+      const userImage = session?.user?.image || defaultImage.src; // Use default image if no user image
 
-      const userImage = session?.user?.image || "";
-      if (!userImage) {
-        toast.error("User image not available, using default image.");
-      }
+      const formattedDateTime = `${displayDate}`;
 
       const postData = {
         ...inputs,
-        date: formattedDate,
+        date: formattedDateTime,
+        time: inputs.time || currentTime,
         image: postImageUrl,
-        userImage: userImage,
+        userImage: userImage, // This will now always have a value
         createdAt: createdAt,
         location: addressMethod === "automatic" ? location : manualAddress,
         zip: zipCode,
@@ -136,6 +143,7 @@ const Form: React.FC<FormProps> = () => {
 
       await setDoc(doc(db, "posts", createdAt.toString()), postData);
 
+      // Toast notification with proper image handling
       toast.custom((t) => (
         <div
           className={`${
@@ -146,7 +154,7 @@ const Form: React.FC<FormProps> = () => {
             <div className="flex items-start">
               <div className="flex-shrink-0 pt-0.5">
                 <Image
-                  src={userImage || defaultImage}
+                  src={session?.user?.image || defaultImage}
                   width={42}
                   height={42}
                   alt="UserImage"
@@ -180,43 +188,50 @@ const Form: React.FC<FormProps> = () => {
       toast.error("Грешка при креирање на пост...");
     }
   };
-
   useEffect(() => {
     const fetchLocation = async () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-          setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            setLatitude(latitude);
+            setLongitude(longitude);
+            setLocation(`Lat: ${latitude}, Lon: ${longitude}`);
 
-          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-          try {
-            const response = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
-            );
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-              const formattedAddress = data.results[0].formatted_address;
-              setLocation(formattedAddress);
-
-              const addressComponents = data.results[0].address_components;
-              const postalCode = addressComponents.find(
-                (component: AddressComponent) =>
-                  component.types.includes("postal_code")
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
               );
-              if (postalCode) {
-                setZipCode(postalCode.long_name);
+              const data = await response.json();
+
+              if (data.address) {
+                // Format address components
+                const addressParts = [];
+                if (data.address.road) addressParts.push(data.address.road);
+                if (data.address.city) addressParts.push(data.address.city);
+                if (data.address.country)
+                  addressParts.push(data.address.country);
+
+                setLocation(addressParts.join(", "));
+
+                // Get postal code if available
+                if (data.address.postcode) {
+                  setZipCode(data.address.postcode);
+                }
+              } else {
+                toast.error("Не е пронајдена локација");
               }
-            } else {
-              toast.error("Не е пронајдена локација");
+            } catch {
+              // Removed unused error parameter to fix ESLint warning
+              toast.error("Грешка при наоѓање на локација");
             }
-          } catch {
-            toast.error("Грешка при наоѓање на локација");
+          },
+          () => {
+            toast.error("Грешка при пристап до локација");
           }
-        });
+        );
       } else {
-        toast.error("Геолокација не е подржано преку овој пребарувач.");
+        toast.error("Геолокација не е подржана");
       }
     };
 
@@ -248,8 +263,7 @@ const Form: React.FC<FormProps> = () => {
           />
           <textarea
             name="desc"
-            maxLength={75}
-            className="w-full mb-4  border-[1px] p-3 rounded-md outline-accent"
+            className="w-full mb-4 border-[1px] p-3 rounded-md outline-accent"
             required
             onChange={handleChange}
             placeholder="Внесете опис овде"

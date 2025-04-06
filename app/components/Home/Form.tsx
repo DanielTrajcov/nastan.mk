@@ -49,8 +49,6 @@ const Form: React.FC<FormProps> = () => {
     useState<PermissionState>("prompt");
 
   // Date states
-  const [currentDate, setCurrentDate] = useState<string>("");
-  const [currentTime, setCurrentTime] = useState<string>("");
   const [displayDate, setDisplayDate] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -64,7 +62,7 @@ const Form: React.FC<FormProps> = () => {
           });
           setLocationPermission(status.state);
           status.onchange = () => setLocationPermission(status.state);
-        } catch (error) {
+        } catch {
           console.log("Permission API not supported");
         }
       }
@@ -75,10 +73,6 @@ const Form: React.FC<FormProps> = () => {
   // Initialize default date/time
   useEffect(() => {
     const now = new Date();
-    const dateStr = now.toISOString().split("T")[0];
-    setCurrentDate(dateStr);
-    const timeStr = now.toTimeString().split(" ")[0].slice(0, 5);
-    setCurrentTime(timeStr);
     const mkDate = now.toLocaleDateString("mk-MK", {
       weekday: "long",
       day: "numeric",
@@ -139,7 +133,7 @@ const Form: React.FC<FormProps> = () => {
             );
             toast.error("Не е пронајдена локација");
           }
-        } catch (error) {
+        } catch {
           setLocation(
             `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`
           );
@@ -220,7 +214,10 @@ const Form: React.FC<FormProps> = () => {
       const postData = {
         ...inputs,
         date: displayDate,
-        time: inputs.time || currentTime,
+        time: selectedDate.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }), // Use selected date's time
         image: postImageUrl,
         userImage: session?.user?.image || defaultImage.src,
         createdAt: Date.now(),

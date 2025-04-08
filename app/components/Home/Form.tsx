@@ -11,6 +11,7 @@ import { Post } from "../../types/Post";
 import defaultImage from "../../../public/Images/default-user.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useGeoLocation } from "../../hooks/useGeolocation";
 
 interface Inputs {
   title?: string;
@@ -35,42 +36,22 @@ const Form: React.FC<FormProps> = () => {
   const storage = getStorage(app);
   const [file, setFile] = useState<File | undefined>();
 
-  // Location states
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [addressMethod, setAddressMethod] = useState<"automatic" | "manual">(
-    "automatic"
-  );
-  const [location, setLocation] = useState("Вашата локација...");
   const [manualAddress, setManualAddress] = useState("");
-  const [zipCode, setZipCode] = useState("");
-  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
-  const [locationPermission, setLocationPermission] =
-    useState<PermissionState>("prompt");
-
-  // Date states
   const [displayDate, setDisplayDate] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Check geolocation permission status
-  useEffect(() => {
-    const checkPermission = async () => {
-      if (navigator.permissions) {
-        try {
-          const status = await navigator.permissions.query({
-            name: "geolocation",
-          });
-          setLocationPermission(status.state);
-          status.onchange = () => setLocationPermission(status.state);
-        } catch {
-          console.log("Permission API not supported");
-        }
-      }
-    };
-    checkPermission();
-  }, []);
+  const {
+    addressMethod,
+    setAddressMethod,
+    location,
+    latitude,
+    longitude,
+    zipCode,
+    setZipCode,
+    isDetectingLocation,
+    locationPermission,
+  } = useGeoLocation();
 
-  // Initialize default date/time
   useEffect(() => {
     const now = new Date();
     const mkDate = now.toLocaleDateString("mk-MK", {
@@ -82,7 +63,6 @@ const Form: React.FC<FormProps> = () => {
     setDisplayDate(mkDate);
   }, []);
 
-  // Set user info if session exists
   useEffect(() => {
     if (session) {
       setInputs({
@@ -91,77 +71,6 @@ const Form: React.FC<FormProps> = () => {
       });
     }
   }, [session]);
-
-  // Improved location detection from second code
-  const detectLocation = async () => {
-    setIsDetectingLocation(true);
-    try {
-      if (navigator.geolocation) {
-        const position = await new Promise<GeolocationPosition>(
-          (resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 10000,
-            });
-          }
-        );
-
-        const { latitude, longitude } = position.coords;
-        setLatitude(latitude);
-        setLongitude(longitude);
-
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          const data = await response.json();
-
-          if (data.address) {
-            const addressParts = [];
-            if (data.address.road) addressParts.push(data.address.road);
-            if (data.address.city) addressParts.push(data.address.city);
-            if (data.address.country) addressParts.push(data.address.country);
-
-            setLocation(addressParts.join(", "));
-
-            if (data.address.postcode) {
-              setZipCode(data.address.postcode);
-            }
-          } else {
-            setLocation(
-              `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`
-            );
-            toast.error("Не е пронајдена локација");
-          }
-        } catch {
-          setLocation(
-            `Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)}`
-          );
-          toast.error("Грешка при наоѓање на локација");
-        }
-      } else {
-        throw new Error("Geolocation not supported");
-      }
-    } catch (error) {
-      console.error("Location detection failed:", error);
-      toast.error("Грешка при пристап до локација");
-      setAddressMethod("manual"); // Fallback to manual input
-    } finally {
-      setIsDetectingLocation(false);
-    }
-  };
-
-  // Location detection effect
-  useEffect(() => {
-    if (addressMethod === "automatic") {
-      detectLocation();
-    } else {
-      // Reset location data when switching to manual mode
-      setLatitude(null);
-      setLongitude(null);
-      setLocation("Вашата локација...");
-    }
-  }, [addressMethod]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -217,20 +126,19 @@ const Form: React.FC<FormProps> = () => {
         time: selectedDate.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-        }), // Use selected date's time
+        }),
         image: postImageUrl,
         userImage: session?.user?.image || defaultImage.src,
         createdAt: Date.now(),
         location: addressMethod === "automatic" ? location : manualAddress,
         zip: zipCode,
-        latitude: latitude,
-        longitude: longitude,
+        latitude,
+        longitude,
         game: inputs.game,
       };
 
       await setDoc(doc(db, "posts", Date.now().toString()), postData);
 
-      // Enhanced toast notification from second code
       toast.custom((t) => (
         <div
           className={`${
@@ -278,201 +186,191 @@ const Form: React.FC<FormProps> = () => {
 
   return (
     <div className="p-4">
-      <div className="mt-4">
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <input
-            type="text"
-            name="title"
-            maxLength={28}
-            placeholder="Наслов"
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <input
+          type="text"
+          name="title"
+          maxLength={28}
+          placeholder="Наслов"
+          required
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+
+        <textarea
+          name="desc"
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent min-h-[120px]"
+          required
+          onChange={handleChange}
+          placeholder="Внесете опис овде"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => date && setSelectedDate(date)}
+            dateFormat="dd-MM-yyyy"
+            name="date"
             required
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full border p-3 rounded-md outline-accent"
+            placeholderText="Избери дата"
           />
 
-          <textarea
-            name="desc"
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent min-h-[120px]"
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => date && setSelectedDate(date)}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={5}
+            timeCaption="Time"
+            dateFormat="h:mm aa"
+            name="time"
             required
-            onChange={handleChange}
-            placeholder="Внесете опис овде"
+            className="w-full border p-3 rounded-md outline-accent"
+            placeholderText="Избери време"
           />
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  setSelectedDate(date);
-                }
-              }}
-              dateFormat="dd-MM-yyyy"
-              name="date"
-              required
-              className="w-full border p-3 rounded-md outline-accent"
-              placeholderText="Избери дата"
-            />
-
-            <DatePicker
-              selected={selectedDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  setSelectedDate(date);
-                }
-              }}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={5}
-              timeCaption="Time"
-              dateFormat="h:mm aa"
-              name="time"
-              required
-              className="w-full border p-3 rounded-md outline-accent"
-              placeholderText="Избери време"
-            />
-          </div>
-
-          <div className="flex flex-col space-y-4">
-            <label
-              className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
-                addressMethod === "automatic"
-                  ? "border-accent bg-accent/10"
-                  : "border-gray-300"
-              }`}
-            >
-              <input
-                type="radio"
-                value="automatic"
-                checked={addressMethod === "automatic"}
-                onChange={() => setAddressMethod("automatic")}
-                className="mr-2"
-              />
-              Автоматска локација
-            </label>
-
-            <label
-              className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
-                addressMethod === "manual"
-                  ? "border-accent bg-accent/10"
-                  : "border-gray-300"
-              }`}
-            >
-              <input
-                type="radio"
-                value="manual"
-                checked={addressMethod === "manual"}
-                onChange={() => setAddressMethod("manual")}
-                className="mr-2"
-              />
-              Внесете адреса
-            </label>
-          </div>
-
-          {addressMethod === "automatic" ? (
-            <div className="p-3 border border-gray-300 rounded-md bg-gray-50">
-              {isDetectingLocation ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-                  <span>Детектирање на локација...</span>
-                </div>
-              ) : (
-                <div>
-                  <p className="font-medium">Локација:</p>
-                  <p>{location}</p>
-                  {latitude && longitude && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Координати: {latitude.toFixed(4)}, {longitude.toFixed(4)}
-                    </p>
-                  )}
-                </div>
-              )}
-              {locationPermission === "denied" && (
-                <p className="text-sm text-red-500 mt-2">
-                  Дозвола за локација е одбиена. Ве молиме овозможете ја во
-                  поставките на вашиот прелистувач.
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Внесете адреса"
-                name="manualAddress"
-                value={manualAddress}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
-                required
-              />
-
-              <input
-                type="text"
-                placeholder="Поштенски код"
-                name="zip"
-                maxLength={4}
-                value={zipCode}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
-                required
-              />
-            </div>
-          )}
-
-          <select
-            name="game"
-            required
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
-            defaultValue=""
+        <div className="flex flex-col space-y-4">
+          <label
+            className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
+              addressMethod === "automatic"
+                ? "border-accent bg-accent/10"
+                : "border-gray-300"
+            }`}
           >
-            <option value="" disabled>
-              Изберете категорија
-            </option>
-            {Data.GameList.map((item) => (
-              <option key={item.id} value={item.name}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+            <input
+              type="radio"
+              value="automatic"
+              checked={addressMethod === "automatic"}
+              onChange={() => setAddressMethod("automatic")}
+              className="mr-2"
+            />
+            Автоматска локација
+          </label>
 
-          <div className="bg-white border border-gray-300 rounded-md p-4 text-center">
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept="image/gif, image/jpeg, image/jpg, image/png"
-                className="hidden"
-              />
-              <div className="flex flex-col items-center justify-center space-y-2">
-                <svg
-                  className="w-8 h-8 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <p className="text-sm text-gray-600">
-                  {file ? file.name : "Кликнете за да прикачите слика"}
-                </p>
-                <p className="text-xs text-gray-500">PNG, JPG, GIF до 5MB</p>
+          <label
+            className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
+              addressMethod === "manual"
+                ? "border-accent bg-accent/10"
+                : "border-gray-300"
+            }`}
+          >
+            <input
+              type="radio"
+              value="manual"
+              checked={addressMethod === "manual"}
+              onChange={() => setAddressMethod("manual")}
+              className="mr-2"
+            />
+            Внесете адреса
+          </label>
+        </div>
+
+        {addressMethod === "automatic" ? (
+          <div className="p-3 border border-gray-300 rounded-md bg-gray-50">
+            {isDetectingLocation ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                <span>Детектирање на локација...</span>
               </div>
-            </label>
+            ) : (
+              <div>
+                <p className="font-medium">Локација:</p>
+                <p>{location}</p>
+                {latitude && longitude && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Координати: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                  </p>
+                )}
+              </div>
+            )}
+            {locationPermission === "denied" && (
+              <p className="text-sm text-red-500 mt-2">
+                Дозвола за локација е одбиена. Овозможете ја во поставките на
+                прелистувачот.
+              </p>
+            )}
           </div>
+        ) : (
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Внесете адреса"
+              name="manualAddress"
+              value={manualAddress}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
 
-          <button
-            type="submit"
-            className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-4 rounded-md transition-colors duration-200"
-          >
-            Креирај настан
-          </button>
-        </form>
-      </div>
+            <input
+              type="text"
+              placeholder="Поштенски код"
+              name="zip"
+              maxLength={4}
+              value={zipCode}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+              required
+            />
+          </div>
+        )}
+
+        <select
+          name="game"
+          required
+          onChange={handleChange}
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Изберете категорија
+          </option>
+          {Data.GameList.map((item) => (
+            <option key={item.id} value={item.name}>
+              {item.name}
+            </option>
+          ))}
+        </select>
+
+        <div className="bg-white border border-gray-300 rounded-md p-4 text-center">
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept="image/gif, image/jpeg, image/jpg, image/png"
+              className="hidden"
+            />
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <p className="text-sm text-gray-600">
+                {file ? file.name : "Кликнете за да прикачите слика"}
+              </p>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF до 5MB</p>
+            </div>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-4 rounded-md transition-colors duration-200"
+        >
+          Креирај настан
+        </button>
+      </form>
     </div>
   );
 };

@@ -3,15 +3,16 @@ import Data from "@/app/shared/Data";
 import { useSession } from "next-auth/react";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { app } from "../../shared/firebaseConfig";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Post } from "../../types/Post";
 import defaultImage from "../../../public/Images/default-user.svg";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useGeoLocation } from "../../hooks/useGeolocation";
+import { uploadBytesResumable } from "firebase/storage";
+import { formatMacedonianDate } from "../../utils/dateUtils";
 
 interface Inputs {
   title?: string;
@@ -40,6 +41,9 @@ const Form: React.FC<FormProps> = () => {
   const [displayDate, setDisplayDate] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     addressMethod,
     setAddressMethod,
@@ -54,13 +58,8 @@ const Form: React.FC<FormProps> = () => {
 
   useEffect(() => {
     const now = new Date();
-    const mkDate = now.toLocaleDateString("mk-MK", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-    setDisplayDate(mkDate);
+    const formattedDate = formatMacedonianDate(now);
+    setDisplayDate(formattedDate);
   }, []);
 
   useEffect(() => {
@@ -81,12 +80,7 @@ const Form: React.FC<FormProps> = () => {
     setInputs((prev) => ({ ...prev, [name]: value }));
 
     if (name === "date") {
-      const mkDate = new Date(value).toLocaleDateString("mk-MK", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
+      const mkDate = formatMacedonianDate(new Date(value));
       setDisplayDate(mkDate);
     }
 
@@ -102,6 +96,10 @@ const Form: React.FC<FormProps> = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        toast.error("Дозволената големина е до 5MB.");
+        return;
+      }
       setFile(selectedFile);
       toast.success("Сликата е прикачена");
     }
@@ -116,71 +114,51 @@ const Form: React.FC<FormProps> = () => {
     }
 
     try {
+      setIsSubmitting(true);
       const storageRef = ref(storage, "posts/" + file.name);
-      await uploadBytes(storageRef, file);
-      const postImageUrl = await getDownloadURL(storageRef);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-      const postData = {
-        ...inputs,
-        date: displayDate,
-        time: selectedDate.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        image: postImageUrl,
-        userImage: session?.user?.image || defaultImage.src,
-        createdAt: Date.now(),
-        location: addressMethod === "automatic" ? location : manualAddress,
-        zip: zipCode,
-        latitude,
-        longitude,
-        game: inputs.game,
-      };
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        () => {
+          toast.error("Грешка при прикачување.");
+          setIsSubmitting(false);
+        },
+        async () => {
+          const postImageUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-      await setDoc(doc(db, "posts", Date.now().toString()), postData);
+          const postData = {
+            ...inputs,
+            date: displayDate,
+            time: selectedDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            image: postImageUrl,
+            userImage: session?.user?.image || defaultImage.src,
+            createdAt: Date.now(),
+            location: addressMethod === "automatic" ? location : manualAddress,
+            zip: zipCode,
+            latitude,
+            longitude,
+            game: inputs.game,
+          };
 
-      toast.custom((t) => (
-        <div
-          className={`${
-            t.visible ? "animate-enter" : "animate-leave"
-          } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-        >
-          <div className="flex-1 w-0 p-4">
-            <div className="flex items-start">
-              <div className="flex-shrink-0 pt-0.5">
-                <Image
-                  src={session?.user?.image || defaultImage}
-                  width={42}
-                  height={42}
-                  alt="UserImage"
-                  className="h-10 w-10 rounded-full"
-                />
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm font-medium text-gray-900">
-                  {session?.user?.name}
-                </p>
-                <p className="text-sm font-medium text-gray-900">
-                  Успешно креиран настан
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex border-l border-gray-200">
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              Затвори
-            </button>
-          </div>
-        </div>
-      ));
+          await setDoc(doc(db, "posts", Date.now().toString()), postData);
 
-      router.push("/");
+          toast.success("Настанот е успешно креиран!");
+          router.push("/");
+        }
+      );
     } catch (error) {
       console.error("Грешка при креирање на пост:", error);
       toast.error("Грешка при креирање на пост...");
+      setIsSubmitting(false);
     }
   };
 
@@ -364,11 +342,28 @@ const Form: React.FC<FormProps> = () => {
           </label>
         </div>
 
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div
+              className="bg-accent h-2.5 rounded-full transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+            <p className="text-sm text-center mt-1">
+              {Math.round(uploadProgress)}%
+            </p>
+          </div>
+        )}
+
         <button
           type="submit"
-          className="bg-accent hover:bg-accent-dark text-white font-medium py-3 px-4 rounded-md transition-colors duration-200"
+          disabled={isSubmitting}
+          className={`${
+            isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-accent hover:bg-accent-dark"
+          } text-white font-medium py-3 px-4 rounded-md transition-colors duration-200`}
         >
-          Креирај настан
+          {isSubmitting ? "Прикачување..." : "Креирај настан"}
         </button>
       </form>
     </div>

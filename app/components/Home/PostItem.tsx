@@ -7,7 +7,7 @@ import { app } from "../../shared/firebaseConfig";
 import { toast } from "react-hot-toast";
 import defaultImage from "../../../public/Images/default-user.svg";
 import { CiCalendar, CiClock2, CiLocationOn } from "react-icons/ci";
-import { formatMacedonianDate } from "../../utils/dateUtils"; // Importing the utility functions
+import { formatMacedonianDate } from "../../utils/dateUtils";
 
 interface PostItemProps {
   post: Post;

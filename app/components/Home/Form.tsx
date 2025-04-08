@@ -348,7 +348,7 @@ const Form: React.FC<FormProps> = () => {
               className="bg-accent h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             ></div>
-            <p className="text-sm text-center mt-1">
+            <p className="text-sm text-center mt-3">
               {Math.round(uploadProgress)}%
             </p>
           </div>

@@ -277,8 +277,8 @@ const Form: React.FC<FormProps> = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="mt-4 bg-white rounded-lg shadow-md p-6">
+    <div className="p-4">
+      <div className="mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
             type="text"
@@ -309,7 +309,7 @@ const Form: React.FC<FormProps> = () => {
               dateFormat="dd-MM-yyyy"
               name="date"
               required
-              className="w-full mb-4 border p-3 rounded-md outline-accent"
+              className="w-full border p-3 rounded-md outline-accent"
               placeholderText="Избери дата"
             />
 
@@ -327,48 +327,45 @@ const Form: React.FC<FormProps> = () => {
               dateFormat="h:mm aa"
               name="time"
               required
-              className="w-full mb-4 border p-3 rounded-md outline-accent"
+              className="w-full border p-3 rounded-md outline-accent"
               placeholderText="Избери време"
             />
           </div>
 
-          <div className="space-y-2">
-            <p className="font-medium">Начин на одредување локација:</p>
-            <div className="flex flex-col space-y-2">
-              <label
-                className={`flex items-center p-3 border rounded-md cursor-pointer ${
-                  addressMethod === "automatic"
-                    ? "border-accent bg-accent/10"
-                    : "border-gray-300"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="automatic"
-                  checked={addressMethod === "automatic"}
-                  onChange={() => setAddressMethod("automatic")}
-                  className="mr-2"
-                />
-                Автоматска локација
-              </label>
+          <div className="flex flex-col space-y-4">
+            <label
+              className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
+                addressMethod === "automatic"
+                  ? "border-accent bg-accent/10"
+                  : "border-gray-300"
+              }`}
+            >
+              <input
+                type="radio"
+                value="automatic"
+                checked={addressMethod === "automatic"}
+                onChange={() => setAddressMethod("automatic")}
+                className="mr-2"
+              />
+              Автоматска локација
+            </label>
 
-              <label
-                className={`flex items-center p-3 border rounded-md cursor-pointer ${
-                  addressMethod === "manual"
-                    ? "border-accent bg-accent/10"
-                    : "border-gray-300"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="manual"
-                  checked={addressMethod === "manual"}
-                  onChange={() => setAddressMethod("manual")}
-                  className="mr-2"
-                />
-                Внесете адреса
-              </label>
-            </div>
+            <label
+              className={`bg-white flex items-center p-3 border rounded-md cursor-pointer ${
+                addressMethod === "manual"
+                  ? "border-accent bg-accent/10"
+                  : "border-gray-300"
+              }`}
+            >
+              <input
+                type="radio"
+                value="manual"
+                checked={addressMethod === "manual"}
+                onChange={() => setAddressMethod("manual")}
+                className="mr-2"
+              />
+              Внесете адреса
+            </label>
           </div>
 
           {addressMethod === "automatic" ? (
@@ -438,7 +435,7 @@ const Form: React.FC<FormProps> = () => {
             ))}
           </select>
 
-          <div className="border border-dashed border-gray-300 rounded-md p-4 text-center">
+          <div className="bg-white border border-gray-300 rounded-md p-4 text-center">
             <label className="cursor-pointer">
               <input
                 type="file"

@@ -69,7 +69,7 @@ const PostDisplay: React.FC<PostDisplayProps> = ({ post }) => {
           </div>
           <div className="flex items-center p-2">
             <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
-              <CiLocationOn className="text-accent text-4xl" />
+              <CiLocationOn className="text-accent text-4xl w-14" />
             </div>
             <div className="p-2 font-light hover:text-accent transition-colors">
               <a

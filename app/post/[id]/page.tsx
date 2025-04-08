@@ -5,6 +5,7 @@ import { Post } from "../../types/Post";
 import { firestore } from "../../shared/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import PostDisplay from "@/app/components/Home/PostDisplay";
+import { CiCircleChevLeft } from "react-icons/ci";
 
 const PostDetails = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const PostDetails = () => {
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
-          throw new Error("Post not found in database");
+          throw new Error("Постот не е пронајден");
         }
 
         const postData = docSnap.data();
@@ -64,13 +65,13 @@ const PostDetails = () => {
   if (error || !post) {
     return (
       <div className="max-w-md mx-auto p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">Post Not Found</h2>
+        <h2 className="text-2xl font-bold mb-4">Постот не е пронајден</h2>
         <p className="mb-4 text-red-500">{error || "The post doesn't exist"}</p>
         <button
           onClick={() => router.push("/")}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
-          Browse All Posts
+          Назад кон почетна
         </button>
       </div>
     );
@@ -81,9 +82,12 @@ const PostDetails = () => {
       <div className="mt-6">
         <button
           onClick={() => router.back()}
-          className="px-6 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          className="px-6 py-2 border border-gray-200 rounded-lg transition-colors"
         >
-          ← Back to Posts
+          <div className="flex gap-2 text-gray-600">
+            <CiCircleChevLeft className="text-2xl" />
+            <p>Назад</p>
+          </div>
         </button>
       </div>
       <PostDisplay post={post} />

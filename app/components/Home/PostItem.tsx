@@ -7,6 +7,7 @@ import { app } from "../../shared/firebaseConfig";
 import { toast } from "react-hot-toast";
 import defaultImage from "../../../public/Images/default-user.svg";
 import { CiCalendar, CiClock2, CiLocationOn } from "react-icons/ci";
+import { formatMacedonianDate } from "../../utils/dateUtils"; // Importing the utility functions
 
 interface PostItemProps {
   post: Post;
@@ -24,24 +25,12 @@ const PostItem: React.FC<PostItemProps> = ({
   const db = getFirestore(app);
   const [isEditing, setIsEditing] = useState(false);
   const [editedPost, setEditedPost] = useState<Post>({ ...post });
-  const [currentDate, setCurrentDate] = useState<string>("");
-  const [currentTime, setCurrentTime] = useState<string>("");
   const [displayDate, setDisplayDate] = useState("");
 
   useEffect(() => {
     const now = new Date();
-    const dateStr = now.toISOString().split("T")[0];
-    const timeStr = now.toTimeString().split(" ")[0].slice(0, 5);
-    const mkDate = now.toLocaleDateString("mk-MK", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-
-    setCurrentDate(dateStr);
-    setCurrentTime(timeStr);
-    setDisplayDate(mkDate);
+    const formattedDate = formatMacedonianDate(now); // Use the utility function
+    setDisplayDate(formattedDate);
   }, []);
 
   const formatTimeAgo = (timestamp: number) => {
@@ -59,13 +48,7 @@ const PostItem: React.FC<PostItemProps> = ({
     setEditedPost((prev) => ({ ...prev, [name]: value }));
 
     if (name === "date") {
-      const selectedDate = new Date(value);
-      const mkDate = selectedDate.toLocaleDateString("mk-MK", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
+      const mkDate = formatMacedonianDate(new Date(value)); // Use the utility function
       setDisplayDate(mkDate);
     }
   };
@@ -77,7 +60,7 @@ const PostItem: React.FC<PostItemProps> = ({
       await updateDoc(doc(db, "posts", editedPost.id), {
         title: editedPost.title,
         date: displayDate,
-        time: editedPost.time || currentTime,
+        time: editedPost.time,
         location: editedPost.location,
         desc: editedPost.desc,
       });
@@ -89,13 +72,13 @@ const PostItem: React.FC<PostItemProps> = ({
   };
 
   return (
-    <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer h-auto mb-2">
+    <div className=" bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer h-auto mb-2">
       <div className="pt-5 px-5">
         {post.image && (
           <Image
-            className="rounded-lg w-full h-[220px] object-cover"
+            className="rounded-lg w-full h-[320px] object-cover"
             width={1200}
-            height={220}
+            height={320}
             src={post.image}
             alt="PostImage"
           />
@@ -121,13 +104,13 @@ const PostItem: React.FC<PostItemProps> = ({
         </div>
 
         <div className="flex items-center font-light gap-2 mb-2">
-          <CiCalendar className="text-2xl" />
+          <CiCalendar className="text-3xl" />
           {isEditing ? (
             <div className="flex items-center gap-2 w-full">
               <input
                 type="date"
                 name="date"
-                value={editedPost.date || currentDate}
+                value={editedPost.date}
                 onChange={handleChange}
                 className="border p-1 rounded-md"
               />
@@ -138,22 +121,22 @@ const PostItem: React.FC<PostItemProps> = ({
         </div>
 
         <div className="flex items-center font-light gap-2 mb-2">
-          <CiClock2 className="text-2xl" />
+          <CiClock2 className="text-3xl" />
           {isEditing ? (
             <input
               type="time"
               name="time"
-              value={editedPost.time || currentTime}
+              value={editedPost.time}
               onChange={handleChange}
               className="border p-1 rounded-md"
             />
           ) : (
-            post.time || currentTime
+            post.time
           )}
         </div>
 
         <div className="flex items-center font-light gap-2 mb-2">
-          <CiLocationOn className="text-2xl" />
+          <CiLocationOn className="text-3xl" />
           {isEditing ? (
             <input
               type="text"
@@ -163,7 +146,7 @@ const PostItem: React.FC<PostItemProps> = ({
               className="border p-1 rounded-md"
             />
           ) : (
-            <p className="whitespace-nowrap overflow-hidden text-ellipsis">
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis w-[70%]">
               {post.location}
             </p>
           )}

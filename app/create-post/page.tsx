@@ -17,8 +17,8 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="flex justify-center items-center">
-      <div className="p-6 mt-8 lg:w-[50%] md:w-[50%]">
+    <div className="lg:flex lg:justify-center lg:items-center p-2">
+      <div className="mt-8 lg:w-[50%] md:w-[50%]">
         <h2 className="text-[30px] font-extrabold text-accent text-center">
           КРЕИРАЈ НАСТАН
         </h2>

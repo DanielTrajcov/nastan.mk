@@ -163,7 +163,7 @@ const Form: React.FC<FormProps> = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="py-4">
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input
           type="text"
@@ -183,31 +183,29 @@ const Form: React.FC<FormProps> = () => {
           placeholder="Внесете опис овде"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => date && setSelectedDate(date)}
-            dateFormat="dd-MM-yyyy"
-            name="date"
-            required
-            className="w-full border p-3 rounded-md outline-accent"
-            placeholderText="Избери дата"
-          />
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date) => date && setSelectedDate(date)}
+          dateFormat="dd-MM-yyyy"
+          name="date"
+          required
+          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
+          placeholderText="Избери дата"
+        />
 
-          <DatePicker
-            selected={selectedDate}
-            onChange={(date) => date && setSelectedDate(date)}
-            showTimeSelect
-            showTimeSelectOnly
-            timeIntervals={5}
-            timeCaption="Time"
-            dateFormat="h:mm aa"
-            name="time"
-            required
-            className="w-full border p-3 rounded-md outline-accent"
-            placeholderText="Избери време"
-          />
-        </div>
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date) => date && setSelectedDate(date)}
+          showTimeSelect
+          showTimeSelectOnly
+          timeIntervals={5}
+          timeCaption="Time"
+          dateFormat="h:mm aa"
+          name="time"
+          required
+          className="w-full border p-3 rounded-md outline-accent"
+          placeholderText="Избери време"
+        />
 
         <div className="flex flex-col space-y-4">
           <label
@@ -295,22 +293,40 @@ const Form: React.FC<FormProps> = () => {
           </div>
         )}
 
-        <select
-          name="game"
-          required
-          onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
-          defaultValue=""
-        >
-          <option value="" disabled>
-            Изберете категорија
-          </option>
-          {Data.GameList.map((item) => (
-            <option key={item.id} value={item.name}>
-              {item.name}
+        <div className="relative">
+          <select
+            name="game"
+            required
+            onChange={handleChange}
+            className="w-full appearance-none p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent bg-white text-base leading-tight"
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Изберете категорија
             </option>
-          ))}
-        </select>
+            {Data.GameList.map((item) => (
+              <option key={item.id} value={item.name}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg
+              className="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+        </div>
 
         <div className="bg-white border border-gray-300 rounded-md p-4 text-center">
           <label className="cursor-pointer">
@@ -348,9 +364,7 @@ const Form: React.FC<FormProps> = () => {
               className="bg-accent h-2.5 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             ></div>
-            <p className="text-sm text-center mt-3">
-              {Math.round(uploadProgress)}%
-            </p>
+            <p className="text-sm text-center">{Math.round(uploadProgress)}%</p>
           </div>
         )}
 

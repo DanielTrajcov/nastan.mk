@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { Post } from "./types/Post";
 import Hero from "./components/Home/Hero";
+import PostItemSkeleton from "./components/Skeletons/PostItemSkeleton";
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -44,25 +45,25 @@ export default function Home() {
 
   return (
     <div className="relative flex flex-col items-center justify-center mt-9">
-      {loading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-md z-50">
-          <span className="text-6xl p-3 font-bold text-transparent bg-clip-text animate-fill logo">
-            Настан.мк
-          </span>
-        </div>
-      )}
-
       <div className="w-[95%] md:w-[95%] lg:w-[95%]">
         <Hero />
         <SearchBox
           setSearchResults={setSearchResults}
           setZipCode={setZipCode}
         />
-        <Posts
-          searchResults={searchResults}
-          zipCode={zipCode}
-          allPosts={posts}
-        />
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-8">
+            {[...Array(6)].map((_, index) => (
+              <PostItemSkeleton key={index} />
+            ))}
+          </div>
+        ) : (
+          <Posts
+            searchResults={searchResults}
+            zipCode={zipCode}
+            allPosts={posts}
+          />
+        )}
       </div>
     </div>
   );

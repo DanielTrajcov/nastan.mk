@@ -9,10 +9,12 @@ import LogoButton from "../Buttons/LogoButton";
 import ProfileButton from "../Buttons/ProfileButton";
 import RegisterButton from "../Buttons/RegisterButton";
 import useAuthRedirect from "../../session/useAuthRedirect";
+import HeaderSkeleton, { HeaderButtonSkeleton } from "../Skeletons/HeaderSkeleton";
 
 function Header() {
-  const { session } = useAuthRedirect();
+  const { session, status } = useAuthRedirect();
   const [isNavOpen, setNavOpen] = useState(false);
+  const isLoading = status === "loading";
 
   return (
     <nav className="bg-white text-black shadow-md relative w-full top-0 z-50">
@@ -56,7 +58,12 @@ function Header() {
                 <button className="absolute top-3 left-4">
                   <LogoButton />
                 </button>
-                {!session ? (
+                {isLoading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <HeaderButtonSkeleton />
+                    <HeaderButtonSkeleton />
+                  </div>
+                ) : !session ? (
                   <>
                     <RegisterButton />
                     <SignInButton />
@@ -86,22 +93,26 @@ function Header() {
         </AnimatePresence>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-2">
-          {session?.user?.email && (
-            <div className="flex items-center gap-2">
-              <CreatePostButton />
-              <ProfileButton />
-            </div>
-          )}
-          {!session ? (
-            <>
-              <SignInButton />
-              <RegisterButton />
-            </>
-          ) : (
-            <SignOutButton />
-          )}
-        </div>
+        {isLoading ? (
+          <HeaderSkeleton />
+        ) : (
+          <div className="hidden md:flex items-center gap-2">
+            {session?.user?.email && (
+              <div className="flex items-center gap-2">
+                <CreatePostButton />
+                <ProfileButton />
+              </div>
+            )}
+            {!session ? (
+              <>
+                <SignInButton />
+                <RegisterButton />
+              </>
+            ) : (
+              <SignOutButton />
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

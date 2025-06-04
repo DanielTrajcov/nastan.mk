@@ -21,7 +21,7 @@ const Posts: React.FC<PostsProps> = ({ searchResults, allPosts }) => {
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3 mt-5">
         {displayPosts.length > 0
           ? displayPosts.map((post) => (
               <div key={post.id} onClick={() => handlePostClick(post)}>

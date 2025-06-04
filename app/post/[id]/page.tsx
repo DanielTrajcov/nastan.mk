@@ -6,6 +6,7 @@ import { firestore } from "../../shared/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import PostDisplay from "@/app/components/Home/PostDisplay";
 import { CiCircleChevLeft } from "react-icons/ci";
+import PostSkeleton from "@/app/components/Skeletons/PostSkeleton";
 
 const PostDetails = () => {
   const router = useRouter();
@@ -25,8 +26,6 @@ const PostDetails = () => {
     const fetchPost = async () => {
       try {
         setLoading(true);
-        console.log("Fetching post ID:", id);
-
         const docRef = doc(firestore, "posts", id);
         const docSnap = await getDoc(docRef);
 
@@ -35,12 +34,9 @@ const PostDetails = () => {
         }
 
         const postData = docSnap.data();
-        console.log("Firestore data:", postData);
-
-        // Create the post object ensuring no duplicate id field
         setPost({
           ...postData,
-          id: docSnap.id, // This will overwrite any existing id from postData
+          id: docSnap.id,
         } as Post);
       } catch (err) {
         console.error("Firebase error:", err);
@@ -56,42 +52,31 @@ const PostDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="container mx-auto px-4 py-8">
+        <PostSkeleton />
       </div>
     );
   }
 
-  if (error || !post) {
+  if (error) {
     return (
-      <div className="max-w-md mx-auto p-6 text-center">
-        <h2 className="text-2xl font-bold mb-4">Постот не е пронајден</h2>
-        <p className="mb-4 text-red-500">{error || "The post doesn't exist"}</p>
-        <button
-          onClick={() => router.push("/")}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Назад кон почетна
-        </button>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">{error}</div>
       </div>
     );
   }
 
   return (
-    <main className="p-4">
-      <div className="mt-6">
-        <button
-          onClick={() => router.back()}
-          className="px-6 py-2 border border-gray-200 rounded-lg transition-colors"
-        >
-          <div className="flex gap-2 text-gray-600">
-            <CiCircleChevLeft className="text-2xl" />
-            <p>Назад</p>
-          </div>
-        </button>
-      </div>
-      <PostDisplay post={post} />
-    </main>
+    <div className="container mx-auto px-4 py-8">
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 mb-6 hover:text-accent transition-colors"
+      >
+        <CiCircleChevLeft className="text-2xl" />
+        <span>Назад</span>
+      </button>
+      {post && <PostDisplay post={post} />}
+    </div>
   );
 };
 

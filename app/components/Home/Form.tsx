@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Data from "@/app/shared/Data";
-import { useSession } from "next-auth/react";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { app } from "../../shared/firebaseConfig";
+import { app, auth } from "../../shared/firebaseConfig";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -13,6 +12,7 @@ import { DateSelector, TimeSelector } from "./DatePicker";
 import { CiCalendar, CiClock2 } from "react-icons/ci";
 import FileUpload from "../FileUpload";
 import { Post } from "../../types/Post";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface Inputs {
   title?: string;
@@ -44,7 +44,6 @@ const Form: React.FC<FormProps> = ({ post }) => {
     }
     return {};
   });
-  const { data: session } = useSession();
   const db = getFirestore(app);
   const storage = getStorage(app);
   const [file, setFile] = useState<File | undefined>();
@@ -54,6 +53,7 @@ const Form: React.FC<FormProps> = ({ post }) => {
   const [time, setTime] = useState<string>("");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [user, setUser] = useState(() => auth.currentUser);
 
   const {
     addressMethod,
@@ -68,13 +68,9 @@ const Form: React.FC<FormProps> = ({ post }) => {
   } = useGeoLocation();
 
   useEffect(() => {
-    if (session) {
-      setInputs({
-        userName: session.user?.name,
-        email: session.user?.email,
-      });
-    }
-  }, [session]);
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -128,9 +124,9 @@ const Form: React.FC<FormProps> = ({ post }) => {
             date: formatMacedonianDate(selectedDate),
             time,
             image: postImageUrl,
-            userImage: session?.user?.image || defaultImage.src,
-            userName: session?.user?.name,
-            email: session?.user?.email,
+            userImage: user?.photoURL || defaultImage.src,
+            userName: user?.displayName,
+            email: user?.email,
             createdAt: Date.now(),
             location: addressMethod === "automatic" ? location : manualAddress,
             zip: zipCode,

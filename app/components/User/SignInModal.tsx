@@ -1,9 +1,10 @@
 // SignInModal.js
-import { signIn } from "next-auth/react";
 import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import Image from "next/image";
 import { useState } from "react";
+import { auth } from "../../shared/firebaseConfig";
+import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -26,39 +27,40 @@ const SignInModal = ({
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if both email and password are provided
     if (!email || !password) {
       setError("Email and password are required.");
       return;
     }
 
-    setLoading(true); // Set loading to true while processing the sign-in
-
+    setLoading(true);
+    setError(null);
     try {
-      const res = await signIn("credentials", {
-        redirect: false, // Prevent automatic redirect
-        email,
-        password,
-      });
-
-      console.log("Sign-in response:", res); // Log the entire response for debugging
-
-      if (res?.error) {
-        console.error("Sign-in error:", res.error); // Log the error message for debugging
-        setError(res.error); // Display the error to the user
-      } else {
-        // Handle success (close modal or redirect)
-        console.log("Sign-in successful:", res);
-        closeModal(); // Close modal on successful sign-in
-
-        // Optionally, you can redirect the user to a different page or dashboard:
-        // router.push("/dashboard");
-      }
+      await signInWithEmailAndPassword(auth, email, password);
+      closeModal();
     } catch (error) {
-      console.error("Unexpected error during sign-in:", error); // Log any unexpected errors
-      setError("An unexpected error occurred. Please try again later.");
+      setError(error instanceof Error ? error.message : "Грешка при најавување");
     } finally {
-      setLoading(false); // Set loading to false after sign-in attempt
+      setLoading(false);
+    }
+  };
+
+  // Social sign-in handler
+  const handleSocialSignIn = async (providerType: "google" | "facebook") => {
+    setLoading(true);
+    setError(null);
+    try {
+      let provider;
+      if (providerType === "google") {
+        provider = new GoogleAuthProvider();
+      } else {
+        provider = new FacebookAuthProvider();
+      }
+      await signInWithPopup(auth, provider);
+      closeModal();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Грешка при најава со социјален провајдер");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -170,7 +172,7 @@ const SignInModal = ({
           <div className="p-4 md:p-5">
             <div className="space-y-6">
               <button
-                onClick={() => signIn("google")}
+                onClick={() => handleSocialSignIn("google")}
                 className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
               >
                 <Image
@@ -184,7 +186,7 @@ const SignInModal = ({
               </button>
 
               <button
-                onClick={() => signIn("facebook")}
+                onClick={() => handleSocialSignIn("facebook")}
                 className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
               >
                 <Image

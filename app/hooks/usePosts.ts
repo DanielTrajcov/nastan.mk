@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Post } from '../types/Post';
-import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 
 interface PostsResponse {
@@ -19,7 +18,6 @@ interface UsePostsOptions {
 }
 
 export function usePosts(options: UsePostsOptions = {}) {
-    const { data: session } = useSession();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -153,6 +151,5 @@ export function usePosts(options: UsePostsOptions = {}) {
         createPost,
         updatePost,
         deletePost,
-        isAuthenticated: !!session,
     };
 }

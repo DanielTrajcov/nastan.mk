@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { firestore } from "@/app/shared/firebaseConfig";
-import { getToken } from "next-auth/jwt";
 import {
     collection,
     query,
@@ -15,15 +14,6 @@ import {
     deleteDoc,
     startAfter,
 } from "firebase/firestore";
-
-// Helper function to verify authentication
-async function verifyAuth(req: NextRequest) {
-    const token = await getToken({ req });
-    if (!token) {
-        throw new Error("Unauthorized");
-    }
-    return token;
-}
 
 export async function GET(req: NextRequest) {
     try {
@@ -84,7 +74,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        const token = await verifyAuth(req);
         const data = await req.json();
 
         // Validate required fields
@@ -100,8 +89,6 @@ export async function POST(req: NextRequest) {
             ...data,
             createdAt: Date.now(),
             updatedAt: Date.now(),
-            authorId: token.sub,
-            authorEmail: token.email,
         };
 
         // Create post
@@ -123,7 +110,6 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
     try {
-        const token = await verifyAuth(req);
         const data = await req.json();
         const { id, ...updateData } = data;
 
@@ -137,11 +123,6 @@ export async function PUT(req: NextRequest) {
 
         if (!postSnap.exists()) {
             return NextResponse.json({ error: "Post not found" }, { status: 404 });
-        }
-
-        const postData = postSnap.data();
-        if (postData.authorId !== token.sub) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
 
         // Update post
@@ -163,7 +144,6 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
-        const token = await verifyAuth(req);
         const { searchParams } = new URL(req.url);
         const id = searchParams.get("id");
 
@@ -177,11 +157,6 @@ export async function DELETE(req: NextRequest) {
 
         if (!postSnap.exists()) {
             return NextResponse.json({ error: "Post not found" }, { status: 404 });
-        }
-
-        const postData = postSnap.data();
-        if (postData.authorId !== token.sub) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
 
         // Delete post

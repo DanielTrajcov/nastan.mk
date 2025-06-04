@@ -1,10 +1,20 @@
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth"; // Correct import for Session type
+import { useEffect, useState } from "react";
+import { auth } from "../shared/firebaseConfig";
+import { onAuthStateChanged, User } from "firebase/auth";
 
-const useAuthRedirect = (): { session: Session | null; status: string } => {
-  const { data: session, status } = useSession();
+function useAuthRedirect() {
+  const [user, setUser] = useState<User | null>(() => auth.currentUser);
+  const [status, setStatus] = useState("loading");
 
-  return { session, status };
-};
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setStatus(firebaseUser ? "authenticated" : "unauthenticated");
+    });
+    return unsubscribe;
+  }, []);
+
+  return { user, status };
+}
 
 export default useAuthRedirect;

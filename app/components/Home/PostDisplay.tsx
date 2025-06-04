@@ -1,10 +1,8 @@
 "use client";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { doc, updateDoc, deleteDoc, getFirestore } from "firebase/firestore";
-import { app, firestore } from "../../shared/firebaseConfig";
+import { app, firestore, auth } from "../../shared/firebaseConfig";
 import { Post } from "../../types/Post";
-import useAuthRedirect from "../../session/useAuthRedirect";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import {
@@ -22,20 +20,20 @@ import { useRouter } from "next/navigation";
 import { DateSelector, TimeSelector } from "./DatePicker";
 import FileUpload from "../FileUpload";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { onAuthStateChanged } from "firebase/auth";
 
 type Props = {
   post: Post;
 };
 
 const PostDisplay = ({ post }: Props) => {
-  const { session, status } = useAuthRedirect();
+  const router = useRouter();
+  const storage = getStorage(app);
+  const [user, setUser] = useState(() => auth.currentUser);
   const [isOwner, setIsOwner] = useState(false);
   const [actionCount, setActionCount] = useState(0);
   const [lastActionTime, setLastActionTime] = useState(0);
-  const userEmail = session?.user?.email;
   const db = getFirestore(app);
-  const router = useRouter();
-  const storage = getStorage(app);
 
   // Add back the state declarations
   const [date, setDate] = useState<Date | null>(() => {
@@ -69,8 +67,13 @@ const PostDisplay = ({ post }: Props) => {
   }, [post]);
 
   useEffect(() => {
-    setIsOwner(status === "authenticated" && userEmail === post.email);
-  }, [status, userEmail, post.email]);
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    setIsOwner(user?.email === post.email);
+  }, [user, post.email]);
 
   const checkRateLimit = () => {
     const now = Date.now();

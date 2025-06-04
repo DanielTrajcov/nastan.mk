@@ -5,10 +5,11 @@ import Header from "./components/Nav/Header";
 import Footer from "./components/Nav/Footer";
 import { Toaster } from "react-hot-toast";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "Настан.мк",
-  description: "Create by Daniel",
+  description: "Created by Daniel",
 };
 
 export default function RootLayout({
@@ -24,6 +25,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <SpeedInsights />
+          <Analytics />
           <Footer />
         </Provider>
       </body>

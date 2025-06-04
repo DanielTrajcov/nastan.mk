@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import { app } from "../shared/firebaseConfig";
+import { app, auth } from "../shared/firebaseConfig";
 import {
   collection,
   query,
@@ -11,20 +11,19 @@ import {
 import PostItem from "../components/Home/PostItem";
 import { Post } from "../types/Post";
 import { useRouter } from "next/navigation";
-import useAuthRedirect from "../session/useAuthRedirect";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 const Profile = () => {
   const [userPost, setUserPost] = useState<Post[]>([]);
   const db = getFirestore(app);
   const router = useRouter();
-
-  const { session, status } = useAuthRedirect();
+  const [user, setUser] = useState<User | null>(null);
 
   const getUserPost = useCallback(async () => {
-    if (session?.user?.email) {
+    if (user?.email) {
       const q = query(
         collection(db, "posts"),
-        where("email", "==", session.user.email)
+        where("email", "==", user.email)
       );
 
       const querySnapshot = await getDocs(q);
@@ -37,22 +36,22 @@ const Profile = () => {
 
       setUserPost(newPosts);
     }
-  }, [db, session]);
+  }, [db, user]);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
       router.push("/");
       return;
     }
+    getUserPost();
+  }, [user, getUserPost, router]);
 
-    if (session?.user?.email) {
-      getUserPost();
-    }
-  }, [session, status, getUserPost, router]);
-
-
-
-  if (status === "loading") {
+  if (user === null) {
     return <div>Loading...</div>;
   }
 

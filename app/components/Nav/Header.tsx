@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SignInButton from "../Buttons/SignInButton";
 import SignOutButton from "../Buttons/SignOutButton";
 import CreatePostButton from "../Buttons/CreatePostButton";
@@ -8,13 +8,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import LogoButton from "../Buttons/LogoButton";
 import ProfileButton from "../Buttons/ProfileButton";
 import RegisterButton from "../Buttons/RegisterButton";
-import useAuthRedirect from "../../session/useAuthRedirect";
+import { auth } from "../../shared/firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 import HeaderSkeleton, { HeaderButtonSkeleton } from "../Skeletons/HeaderSkeleton";
 
 function Header() {
-  const { session, status } = useAuthRedirect();
+  const [user, setUser] = useState(() => auth.currentUser);
+  const [isLoading, setIsLoading] = useState(true);
   const [isNavOpen, setNavOpen] = useState(false);
-  const isLoading = status === "loading";
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setIsLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <nav className="bg-white text-black shadow-md relative w-full top-0 z-50">
@@ -63,7 +72,7 @@ function Header() {
                     <HeaderButtonSkeleton />
                     <HeaderButtonSkeleton />
                   </div>
-                ) : !session ? (
+                ) : !user ? (
                   <>
                     <RegisterButton />
                     <SignInButton />
@@ -97,13 +106,13 @@ function Header() {
           <HeaderSkeleton />
         ) : (
           <div className="hidden md:flex items-center gap-2">
-            {session?.user?.email && (
+            {user?.email && (
               <div className="flex items-center gap-2">
                 <CreatePostButton />
                 <ProfileButton />
               </div>
             )}
-            {!session ? (
+            {!user ? (
               <>
                 <SignInButton />
                 <RegisterButton />

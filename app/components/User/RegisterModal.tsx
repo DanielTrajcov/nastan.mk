@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import defaultImage from "../../../public/Images/BasketBall.png";
@@ -9,6 +8,10 @@ import {
   createUserWithEmailAndPassword,
   updateProfile, // Import the updateProfile function
   signInWithEmailAndPassword,
+  fetchSignInMethodsForEmail, // Import fetchSignInMethodsForEmail
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
 } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
@@ -32,6 +35,16 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
     setError(null);
 
     try {
+      // Check if email is already registered with any provider
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      if (signInMethods.length > 0) {
+        setError(
+          "Овој е-маил веќе е регистриран. Ве молиме најавете се со оригиналниот метод."
+        );
+        setLoading(false);
+        return;
+      }
+
       // Step 1: Create the user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -64,6 +77,35 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
       } else {
         setError("An unknown error occurred");
       }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Social sign-in handler
+  const handleSocialSignIn = async (providerType: "google" | "facebook") => {
+    setLoading(true);
+    setError(null);
+    try {
+      let provider;
+      if (providerType === "google") {
+        provider = new GoogleAuthProvider();
+      } else {
+        provider = new FacebookAuthProvider();
+      }
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      // Check if user already exists in Firestore, if not, create
+      const userRef = doc(firestore, "users", user.uid);
+      await setDoc(userRef, {
+        userName: user.displayName || "",
+        email: user.email,
+        userImage: user.photoURL || defaultImage.src,
+        createdAt: serverTimestamp(),
+      }, { merge: true });
+      closeModal();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Грешка при најава со социјален провајдер");
     } finally {
       setLoading(false);
     }
@@ -182,7 +224,7 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
           <div className="p-4 md:p-5">
             <div className="space-y-6">
               <button
-                onClick={() => signIn("google")}
+                onClick={() => handleSocialSignIn("google")}
                 className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
               >
                 <Image
@@ -196,7 +238,7 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
               </button>
 
               <button
-                onClick={() => signIn("facebook")}
+                onClick={() => handleSocialSignIn("facebook")}
                 className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
               >
                 <Image

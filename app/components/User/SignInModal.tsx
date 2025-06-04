@@ -4,7 +4,12 @@ import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import Image from "next/image";
 import { useState } from "react";
 import { auth } from "../../shared/firebaseConfig";
-import { signInWithPopup, GoogleAuthProvider, FacebookAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -38,7 +43,9 @@ const SignInModal = ({
       await signInWithEmailAndPassword(auth, email, password);
       closeModal();
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Грешка при најавување");
+      setError(
+        error instanceof Error ? error.message : "Грешка при најавување"
+      );
     } finally {
       setLoading(false);
     }
@@ -58,7 +65,11 @@ const SignInModal = ({
       await signInWithPopup(auth, provider);
       closeModal();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Грешка при најава со социјален провајдер");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Грешка при најава со социјален провајдер"
+      );
     } finally {
       setLoading(false);
     }
@@ -66,7 +77,7 @@ const SignInModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white sm:bg-white lg:bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white sm:bg-white lg:bg-black/60 "
       aria-hidden="true"
     >
       <div className="relative w-full max-w-md max-h-full overflow-y-auto">

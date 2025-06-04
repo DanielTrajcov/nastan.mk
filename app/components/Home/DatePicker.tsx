@@ -49,7 +49,7 @@ export const DateSelector = ({
         <Button
           variant="outline"
           className={cn(
-            "w-full p-6 justify-start text-left font-normal",
+            "w-full py-6 justify-start text-left font-normal",
             !date && "text-muted-foreground",
             className
           )}

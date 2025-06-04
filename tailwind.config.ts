@@ -19,7 +19,7 @@ const config: Config = {
   			foreground: 'hsl(var(--foreground))',
   			accent: {
   				DEFAULT: '#f64060',
-  				hover: '#f64070',
+  				hover: '#d42030',
   				foreground: 'hsl(var(--accent-foreground))'
   			},
   			accent2: {

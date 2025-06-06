@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Data from "./../../shared/Data";
+import Data from "../../shared/Data";
 import Image from "next/image";
 
 interface Game {
@@ -9,11 +9,11 @@ interface Game {
   image: string;
 }
 
-const GameList = () => {
+const Category = () => {
   const [games, setGames] = useState<Game[]>([]);
 
   useEffect(() => {
-    setGames(Data.GameList);
+    setGames(Data.Category);
   }, []);
 
   return (
@@ -33,4 +33,4 @@ const GameList = () => {
   );
 };
 
-export default GameList;
+export default Category;

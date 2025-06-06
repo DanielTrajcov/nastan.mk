@@ -39,7 +39,7 @@ const PostModal: React.FC<PostModalProps> = ({ post, closeModal }) => {
           </div>
           <div className="flex justify-center">
             <form method="dialog" className="flex flex-col w-full">
-              <PostItem post={post} showModal={true} />
+              <PostItem post={post} />
             </form>
           </div>
         </div>

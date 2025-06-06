@@ -1,4 +1,4 @@
-const GameList = [
+const Category = [
   {
     id: 1,
     name: "Програмирање и технологија",
@@ -32,7 +32,7 @@ const GameList = [
 ];
 
 const GameData = {
-  GameList,
+  Category,
 };
 
 export default GameData;

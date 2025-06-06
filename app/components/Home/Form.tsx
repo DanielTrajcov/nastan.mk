@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Input } from "@/components/common/forms/Input";
+import { LoadingState } from "@/components/common/LoadingState";
+import { Card } from "@/components/common/Card";
 import Data from "@/app/shared/Data";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { app, auth } from "../../shared/firebaseConfig";
@@ -153,7 +156,6 @@ const Form: React.FC<FormProps> = ({ post }) => {
           };
 
           await setDoc(doc(db, "posts", Date.now().toString()), postData);
-
           toast.success("Настанот е успешно креиран!");
           router.push("/");
         }
@@ -166,23 +168,30 @@ const Form: React.FC<FormProps> = ({ post }) => {
   };
 
   return (
-    <div className="py-4">
+    <Card className="p-6">
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-        <input
-          type="text"
+        <Input
+          label="Наслов"
           name="title"
-          placeholder="Наслов"
+          maxLength={50}
           required
           onChange={handleChange}
-          className="input-default"
+          value={inputs.title}
         />
-        <textarea
-          name="desc"
-          required
-          onChange={handleChange}
-          placeholder="Внесете опис овде"
-          className="input-default min-h-[120px]"
-        />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Опис
+          </label>
+          <textarea
+            name="desc"
+            required
+            onChange={handleChange}
+            value={inputs.desc}
+            placeholder="Внесете опис овде"
+            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[120px]"
+          />
+        </div>
 
         <div className="flex items-center gap-2 w-full">
           <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
@@ -249,7 +258,7 @@ const Form: React.FC<FormProps> = ({ post }) => {
           <div className="p-3 border border-gray-300 rounded-md bg-gray-50">
             {isDetectingLocation ? (
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                <LoadingState variant="text" />
                 <span>Детектирање на локација...</span>
               </div>
             ) : (
@@ -272,23 +281,22 @@ const Form: React.FC<FormProps> = ({ post }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Внесете адреса"
+            <Input
+              label="Адреса"
               name="manualAddress"
+              maxLength={80}
               value={manualAddress}
               onChange={handleChange}
-              className="input-default"
+              placeholder="Внесете адреса"
               required
             />
-            <input
-              type="text"
-              placeholder="Поштенски код"
+            <Input
+              label="Поштенски код"
               name="zip"
               maxLength={4}
               value={zipCode}
               onChange={handleChange}
-              className="input-default"
+              placeholder="Поштенски код"
               required
             />
           </div>
@@ -304,7 +312,7 @@ const Form: React.FC<FormProps> = ({ post }) => {
             <SelectValue placeholder="Изберете категорија" />
           </SelectTrigger>
           <SelectContent>
-            {Data.GameList.map((item) => (
+            {Data.Category.map((item) => (
               <SelectItem key={item.id} value={item.name}>
                 {item.name}
               </SelectItem>
@@ -333,10 +341,10 @@ const Form: React.FC<FormProps> = ({ post }) => {
               : "bg-accent hover:bg-accent-dark"
           } text-white font-medium py-3 px-4 rounded-md transition-colors duration-200`}
         >
-          {isSubmitting ? "Прикачување..." : "Креирај настан"}
+          {isSubmitting ? <LoadingState variant="button" /> : "Креирај настан"}
         </button>
       </form>
-    </div>
+    </Card>
   );
 };
 

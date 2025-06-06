@@ -1,31 +1,38 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Input } from "@/components/common/forms/Input";
+import { LoadingState } from "@/components/common/LoadingState";
+import Image from "next/image";
 import googleIcon from "../../../public/Images/google-icon.svg";
 import facebookIcon from "../../../public/Images/facebook-icon.svg";
 import defaultImage from "../../../public/Images/BasketBall.png";
-import Image from "next/image";
-import { auth, firestore } from "../../shared/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
-  updateProfile, // Import the updateProfile function
+  updateProfile,
   signInWithEmailAndPassword,
-  fetchSignInMethodsForEmail, // Import fetchSignInMethodsForEmail
+  fetchSignInMethodsForEmail,
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
 } from "firebase/auth";
+import { auth, firestore } from "../../shared/firebaseConfig";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 interface RegisterModalProps {
   isOpen: boolean;
   closeModal: () => void;
+  openSignInModal: () => void;
 }
 
-const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const RegisterModal = ({
+  isOpen,
+  closeModal,
+  openSignInModal,
+}: RegisterModalProps) => {
+  const [userName, setUserName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -35,41 +42,30 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
     setError(null);
 
     try {
-      // Check if email is already registered with any provider
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
       if (signInMethods.length > 0) {
-        setError(
-          "Овој е-маил веќе е регистриран. Ве молиме најавете се со оригиналниот метод."
-        );
-        setLoading(false);
-        return;
+        throw new Error("Е-маилот веќе постои. Обидете се да се најавите.");
       }
 
-      // Step 1: Create the user
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
 
-      // Step 2: Update the user profile
       await updateProfile(userCredential.user, {
-        displayName: userName, // Set the displayName to the user input
-        photoURL: defaultImage.src, // Set the photoURL to the default image
+        displayName: userName,
+        photoURL: defaultImage.src,
       });
 
-      // Step 3: Save additional user info in Firestore
       await setDoc(doc(firestore, "users", userCredential.user.uid), {
         userName,
         email,
-        userImage: defaultImage.src, // Add the default image URL to Firestore
+        userImage: defaultImage.src,
         createdAt: serverTimestamp(),
       });
 
-      // Optional: Sign in the user after registration
       await signInWithEmailAndPassword(auth, email, password);
-
-      // Close modal after successful registration
       closeModal();
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -82,7 +78,6 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
     }
   };
 
-  // Social sign-in handler
   const handleSocialSignIn = async (providerType: "google" | "facebook") => {
     setLoading(true);
     setError(null);
@@ -95,9 +90,7 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
       }
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      // Check if user already exists in Firestore, if not, create
-      const userRef = doc(firestore, "users", user.uid);
-      await setDoc(userRef, {
+      await setDoc(doc(firestore, "users", user.uid), {
         userName: user.displayName || "",
         email: user.email,
         userImage: user.photoURL || defaultImage.src,
@@ -112,146 +105,116 @@ const RegisterModal = ({ isOpen, closeModal }: RegisterModalProps) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white sm:bg-white lg:bg-black/60"
-      aria-hidden="true"
-    >
-      <div className="relative w-full max-w-md max-h-full overflow-y-auto">
-        <div className="relative bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="flex justify-end items-center p-1">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-[95%] max-w-md">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-2xl font-bold">Регистрирај се</h2>
+          <button
+            onClick={closeModal}
+            className="text-gray-400 hover:text-gray-500"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleRegister} className="flex flex-col p-6">
+          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+          
+          <Input
+            label="Име и Презиме"
+            type="text"
+            name="name"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Петко Петковски"
+            required
+          />
+
+          <div className="mt-4">
+            <Input
+              label="Е-маил"
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="име@маил.com"
+              required
+            />
+          </div>
+
+          <div className="mt-4">
+            <Input
+              label="Пасворд"
+              type="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-6 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold"
+          >
+            {loading ? (
+              <LoadingState variant="button" />
+            ) : (
+              "Регистрирај се"
+            )}
+          </button>
+        </form>
+
+        <div className="flex justify-between w-full items-center p-2">
+          <div className="w-full border-b border-gray-200"></div>
+          <span className="px-3 text-gray-600">или</span>
+          <div className="w-full border-b border-gray-200"></div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <button
+            onClick={() => handleSocialSignIn("google")}
+            disabled={loading}
+            className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            <Image
+              src={googleIcon}
+              alt="Google"
+              width={24}
+              height={24}
+              className="mr-2"
+            />
+            <span>Регистрирај се со Google</span>
+          </button>
+
+          <button
+            onClick={() => handleSocialSignIn("facebook")}
+            disabled={loading}
+            className="flex items-center justify-center w-full p-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            <Image
+              src={facebookIcon}
+              alt="Facebook"
+              width={24}
+              height={24}
+              className="mr-2"
+            />
+            <span>Регистрирај се со Facebook</span>
+          </button>
+        </div>
+
+        <div className="text-center p-6 bg-gray-50 rounded-b-lg">
+          <p className="text-sm text-gray-600">
+            Веќе имаш профил?{" "}
             <button
-              type="button"
-              onClick={closeModal}
-              className="text-gray-800 bg-transparent hover:bg-gray-100 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center"
+              onClick={openSignInModal}
+              className="text-accent hover:underline font-semibold"
             >
-              <svg
-                className="w-4 h-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 14"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                />
-              </svg>
-              <span className="sr-only">Close modal</span>
+              Најави се
             </button>
-          </div>
-          <div className="flex flex-col items-center justify-center p-4 mx-2 md:p-5 border-b rounded-t border-gray-200">
-            <p className="text-6xl font-extrabold cursor-pointer logo pb-8">
-              Настан<span className="text-accent font-semibold">.мк</span>
-            </p>
-            <h1 className="text-3xl p-2">Регистрирај се</h1>
-          </div>
-
-          <form onSubmit={handleRegister} className="flex flex-col p-6">
-            {error && <p className="text-red-500 text-center">{error}</p>}
-
-            <div>
-              <label
-                htmlFor="name"
-                className="p-1 text-sm font-semibold text-gray-600"
-              >
-                Име и Презиме
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
-                placeholder="Петко Петковски"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="email"
-                className="p-1 text-sm font-semibold text-gray-600"
-              >
-                Е-маил
-              </label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
-                placeholder="име@маил.com"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="password"
-                className="p-1 text-sm font-semibold text-gray-600"
-              >
-                Пасворд
-              </label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••••"
-                className="my-4 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 outline-accent2"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-4 p-3.5 w-full bg-accent text-white rounded-lg text-xl font-semibold"
-            >
-              {loading ? "Регистрирање..." : "Регистрирај се"}
-            </button>
-          </form>
-
-          <div className="flex justify-between w-full items-center p-2">
-            <div className="w-full border-b border-gray-200"></div>
-            <span className="px-3 text-gray-600">или</span>
-            <div className="w-full border-b border-gray-200"></div>
-          </div>
-
-          <div className="p-4 md:p-5">
-            <div className="space-y-6">
-              <button
-                onClick={() => handleSocialSignIn("google")}
-                className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
-              >
-                <Image
-                  src={googleIcon}
-                  alt="Google Icon"
-                  width={25}
-                  height={25}
-                  className="w-6 h-6"
-                />
-                Регистрирај се со Google
-              </button>
-
-              <button
-                onClick={() => handleSocialSignIn("facebook")}
-                className="w-full py-4 text-black rounded-lg border-[1px] border-gray-400 flex items-center justify-center gap-2"
-              >
-                <Image
-                  src={facebookIcon}
-                  alt="Facebook Icon"
-                  width={25}
-                  height={25}
-                  className="w-6 h-6"
-                />
-                Регистрирај се со Facebook
-              </button>
-            </div>
-          </div>
+          </p>
         </div>
       </div>
     </div>

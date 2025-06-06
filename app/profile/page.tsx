@@ -22,33 +22,36 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const getUserPost = useCallback(async (userEmail: string) => {
-    try {
-      const q = query(
-        collection(db, "posts"),
-        where("email", "==", userEmail)
-      );
+  const getUserPost = useCallback(
+    async (userEmail: string) => {
+      try {
+        const q = query(
+          collection(db, "posts"),
+          where("email", "==", userEmail)
+        );
 
-      const querySnapshot = await getDocs(q);
-      const newPosts: Post[] = [];
+        const querySnapshot = await getDocs(q);
+        const newPosts: Post[] = [];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as Post;
-        newPosts.push({ ...data, id: doc.id });
-      });
+        querySnapshot.forEach((doc) => {
+          const data = doc.data() as Post;
+          newPosts.push({ ...data, id: doc.id });
+        });
 
-      setUserPost(newPosts);
-    } catch (err) {
-      setError("Error fetching posts");
-      console.error("Error fetching posts:", err);
-    }
-  }, [db]);
+        setUserPost(newPosts);
+      } catch (err) {
+        setError("Error fetching posts");
+        console.error("Error fetching posts:", err);
+      }
+    },
+    [db]
+  );
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      
+
       if (currentUser?.email) {
         getUserPost(currentUser.email);
       }
@@ -91,12 +94,8 @@ const Profile = () => {
     <div className="flex justify-center min-h-screen p-6">
       <div className="w-full max-w-6xl">
         <div className="mb-8 text-center">
-          <h2 className="text-[30px] font-extrabold text-accent">
-            Профил
-          </h2>
-          <p className="text-gray-600 mt-2">
-            {user.email}
-          </p>
+          <h2 className="text-[30px] font-extrabold text-accent">Профил</h2>
+          <p className="text-gray-600 mt-2">{user.email}</p>
         </div>
 
         {userPost.length === 0 ? (
@@ -107,10 +106,7 @@ const Profile = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 mt-5">
             {userPost.map((item) => (
               <div key={item.id}>
-                <PostItem
-                  post={item}
-                  seeMore={true}
-                />
+                <PostItem post={item} />
               </div>
             ))}
           </div>

@@ -1,20 +1,41 @@
 import React, { useState } from "react";
 import RegisterModal from "../User/RegisterModal";
+import SignInModal from "../User/SignInModal";
 
 const RegisterButton = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+
+  const openRegisterModal = () => setIsRegisterModalOpen(true);
+  const closeRegisterModal = () => setIsRegisterModalOpen(false);
+
+  const openSignInModal = () => {
+    setIsRegisterModalOpen(false);
+    setIsSignInModalOpen(true);
+  };
+
+  const closeSignInModal = () => setIsSignInModalOpen(false);
 
   return (
     <>
       {/* Register Button */}
       <button className="text-black">
-        <span onClick={openModal}>Регистрирај се</span>
+        <span onClick={openRegisterModal}>Регистрирај се</span>
       </button>
 
-      {/* RegisterModal */}
-      <RegisterModal isOpen={isModalOpen} closeModal={closeModal} />
+      {/* Sign In Modal */}
+      <SignInModal
+        isOpen={isSignInModalOpen}
+        closeModal={closeSignInModal}
+        openRegisterModal={openRegisterModal} // To switch back from Sign In to Register
+      />
+
+      {/* Register Modal */}
+      <RegisterModal
+        isOpen={isRegisterModalOpen}
+        closeModal={closeRegisterModal}
+        openSignInModal={openSignInModal} // To switch from Register to Sign In
+      />
     </>
   );
 };

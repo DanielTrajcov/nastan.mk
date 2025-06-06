@@ -19,8 +19,14 @@ import { formatMacedonianDate } from "@/app/utils/dateUtils";
 import { useRouter } from "next/navigation";
 import { DateSelector, TimeSelector } from "./DatePicker";
 import FileUpload from "../FileUpload";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
+import { Input } from "@/components/common/forms/Input";
 
 type Props = {
   post: Post;
@@ -77,12 +83,14 @@ const PostDisplay = ({ post }: Props) => {
 
   const checkRateLimit = () => {
     const now = Date.now();
-    if (now - lastActionTime < 1000) { // 1 second cooldown
-      if (actionCount >= 3) { // Max 3 actions per second
+    if (now - lastActionTime < 1000) {
+      // 1 second cooldown
+      if (actionCount >= 3) {
+        // Max 3 actions per second
         toast.error("Too many actions. Please wait a moment.");
         return false;
       }
-      setActionCount(prev => prev + 1);
+      setActionCount((prev) => prev + 1);
     } else {
       setActionCount(1);
     }
@@ -131,19 +139,19 @@ const PostDisplay = ({ post }: Props) => {
     try {
       // Create a type-safe update object
       const updateData: Partial<Post> & { lastModified: number } = {
-        lastModified: Date.now()
+        lastModified: Date.now(),
       };
 
       // Handle each field type appropriately
       switch (field) {
-        case 'title':
-        case 'desc':
-        case 'location':
+        case "title":
+        case "desc":
+        case "location":
           updateData[field] = editedPost[field]?.toString().trim();
           break;
-        case 'date':
-        case 'time':
-        case 'image':
+        case "date":
+        case "time":
+        case "image":
           updateData[field] = editedPost[field];
           break;
         default:
@@ -152,7 +160,7 @@ const PostDisplay = ({ post }: Props) => {
 
       await updateDoc(doc(db, "posts", editedPost.id), updateData);
       // Update local state immediately
-      setLocalPost(prev => ({ ...prev, ...updateData }));
+      setLocalPost((prev) => ({ ...prev, ...updateData }));
       toast.success("Промените се зачувани!");
       toggleField(field);
     } catch (error) {
@@ -169,14 +177,14 @@ const PostDisplay = ({ post }: Props) => {
         <p>Дали сакате да го избришете овој пост?</p>
         <div className="flex space-x-4 py-4">
           <button
-            className="text-white p-2 rounded-lg bg-red-500 w-[50%]"
+            className="px-6 py-2 border border-red-200 text-red-500 hover:bg-red-50 rounded-lg transition-colors w-[50%]"
             onClick={async () => {
               try {
-              const postRef = doc(firestore, "posts", post.id!);
-              await deleteDoc(postRef);
-              toast.dismiss(t.id);
-              toast.success("Постот е избришан!");
-              router.push("/");
+                const postRef = doc(firestore, "posts", post.id!);
+                await deleteDoc(postRef);
+                toast.dismiss(t.id);
+                toast.success("Постот е избришан!");
+                router.push("/");
               } catch (error) {
                 console.error("Error deleting post:", error);
                 toast.error("Грешка при бришење на постот.");
@@ -186,7 +194,7 @@ const PostDisplay = ({ post }: Props) => {
             Да
           </button>
           <button
-            className="bg-gray-300 text-black p-2 rounded-lg w-[50%]"
+            className="px-6 py-2 border border-gray-200 text-gray-500 hover:bg-gray-500 rounded-lg transition-colors w-[50%]"
             onClick={() => toast.dismiss(t.id)}
           >
             Не
@@ -206,7 +214,8 @@ const PostDisplay = ({ post }: Props) => {
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           setUploadProgress(progress);
         },
         (error) => {
@@ -222,10 +231,10 @@ const PostDisplay = ({ post }: Props) => {
             };
             await updateDoc(doc(db, "posts", post.id!), updateData);
             // Update local state immediately
-            setLocalPost(prev => ({ ...prev, ...updateData }));
-            setEditedPost(prev => ({ ...prev, ...updateData }));
+            setLocalPost((prev) => ({ ...prev, ...updateData }));
+            setEditedPost((prev) => ({ ...prev, ...updateData }));
             toast.success("Сликата е успешно променета!");
-            toggleField('image');
+            toggleField("image");
           } catch (error) {
             console.error("Error updating image URL:", error);
             toast.error("Грешка при зачувување на сликата");
@@ -247,16 +256,16 @@ const PostDisplay = ({ post }: Props) => {
           <div className="relative p-2 shadow-lg rounded-2xl">
             {localPost.image && (
               <>
-              <Image
-                className="rounded-2xl w-full h-auto aspect-square object-cover"
-                width={1200}
-                height={800}
+                <Image
+                  className="rounded-2xl w-full h-auto aspect-square object-cover"
+                  width={1200}
+                  height={800}
                   src={localPost.image}
-                alt="PostImage"
-              />
+                  alt="PostImage"
+                />
                 {isOwner && (
                   <button
-                    onClick={() => toggleField('image')}
+                    onClick={() => toggleField("image")}
                     className="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all"
                   >
                     <CiEdit className="text-2xl text-accent" />
@@ -283,7 +292,7 @@ const PostDisplay = ({ post }: Props) => {
                 )}
                 <div className="flex justify-end gap-2 mt-2">
                   <button
-                    onClick={() => toggleField('image')}
+                    onClick={() => toggleField("image")}
                     className="p-2 text-gray-500 hover:text-gray-700"
                   >
                     <CiCircleRemove className="text-2xl" />
@@ -325,22 +334,22 @@ const PostDisplay = ({ post }: Props) => {
           <div className="relative">
             {editingFields.title ? (
               <div className="flex gap-2">
-            <input
-              type="text"
-              name="title"
-              value={editedPost.title}
-              onChange={handleChange}
-              maxLength={28}
+                <Input
+                  type="text"
+                  name="title"
+                  value={editedPost.title}
+                  onChange={handleChange}
+                  maxLength={28}
                   className="input-default flex-1"
                 />
                 <button
-                  onClick={() => handleSaveField('title')}
+                  onClick={() => handleSaveField("title")}
                   className="p-2 text-accent hover:text-accent-dark"
                 >
                   <CiCircleCheck className="text-2xl" />
                 </button>
                 <button
-                  onClick={() => toggleField('title')}
+                  onClick={() => toggleField("title")}
                   className="p-2 text-gray-500 hover:text-gray-700"
                 >
                   <CiCircleRemove className="text-2xl" />
@@ -350,10 +359,10 @@ const PostDisplay = ({ post }: Props) => {
               <div className="flex items-center">
                 <h5 className="mb-2 text-2xl font-bold text-black whitespace-normal overflow-hidden min-h-16 flex-1">
                   {localPost.title}
-            </h5>
+                </h5>
                 {isOwner && (
                   <button
-                    onClick={() => toggleField('title')}
+                    onClick={() => toggleField("title")}
                     className="p-2 transition-all"
                   >
                     <CiEdit className="text-2xl text-accent" />
@@ -367,23 +376,20 @@ const PostDisplay = ({ post }: Props) => {
           <div className="relative">
             {editingFields.date ? (
               <div className="flex items-center gap-2">
-            <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
+                <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
                   <CiCalendar className="text-accent text-4xl w-14" />
-            </div>
+                </div>
                 <div className="flex-1">
-                <DateSelector
-                  date={date}
-                    setDate={handleDateChange}
-                  />
+                  <DateSelector date={date} setDate={handleDateChange} />
                 </div>
                 <button
-                  onClick={() => handleSaveField('date')}
+                  onClick={() => handleSaveField("date")}
                   className="p-2 text-accent hover:text-accent-dark"
                 >
                   <CiCircleCheck className="text-2xl" />
                 </button>
                 <button
-                  onClick={() => toggleField('date')}
+                  onClick={() => toggleField("date")}
                   className="p-2 text-gray-500 hover:text-gray-700"
                 >
                   <CiCircleRemove className="text-2xl" />
@@ -399,7 +405,7 @@ const PostDisplay = ({ post }: Props) => {
                 </p>
                 {isOwner && (
                   <button
-                    onClick={() => toggleField('date')}
+                    onClick={() => toggleField("date")}
                     className="p-2 transition-all"
                   >
                     <CiEdit className="text-2xl text-accent" />
@@ -413,23 +419,20 @@ const PostDisplay = ({ post }: Props) => {
           <div className="relative">
             {editingFields.time ? (
               <div className="flex items-center gap-2">
-            <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
+                <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
                   <CiClock2 className="text-accent text-4xl w-14" />
-            </div>
+                </div>
                 <div className="flex-1">
-                <TimeSelector
-                    time={time}
-                    setTime={handleTimeChange}
-                  />
+                  <TimeSelector time={time} setTime={handleTimeChange} />
                 </div>
                 <button
-                  onClick={() => handleSaveField('time')}
+                  onClick={() => handleSaveField("time")}
                   className="p-2 text-accent hover:text-accent-dark"
                 >
                   <CiCircleCheck className="text-2xl" />
                 </button>
                 <button
-                  onClick={() => toggleField('time')}
+                  onClick={() => toggleField("time")}
                   className="p-2 text-gray-500 hover:text-gray-700"
                 >
                   <CiCircleRemove className="text-2xl" />
@@ -440,10 +443,12 @@ const PostDisplay = ({ post }: Props) => {
                 <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
                   <CiClock2 className="text-accent text-4xl w-14" />
                 </div>
-                <p className="font-light flex-1">{localPost.time || "Нема време"}</p>
+                <p className="font-light flex-1">
+                  {localPost.time || "Нема време"}
+                </p>
                 {isOwner && (
                   <button
-                    onClick={() => toggleField('time')}
+                    onClick={() => toggleField("time")}
                     className="p-2 transition-all"
                   >
                     <CiEdit className="text-2xl text-accent" />
@@ -455,47 +460,55 @@ const PostDisplay = ({ post }: Props) => {
 
           {/* Location */}
           <div className="relative">
-            <div className="flex items-center py-2 gap-2">
-              <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14">
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(
+                localPost.location
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center py-2 gap-2 group hover:text-accent transition-colors"
+            >
+              {/* Icon */}
+              <div className="flex justify-center items-center border-2 rounded-lg w-14 h-14 shrink-0">
                 <CiLocationOn className="text-accent text-4xl w-14" />
               </div>
-              <div className="py-2 gap-2 font-light hover:text-accent transition-colors flex-1">
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(localPost.location)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  {localPost.location}
-                </a>
+
+              {/* Text container */}
+              <div className="flex flex-col justify-center font-light flex-1 max-w-[70%] overflow-visible">
+                {/* Location line with truncation */}
+                <span className="truncate">{localPost.location}</span>
+
+                {/* Always visible second line */}
                 {localPost.latitude && localPost.longitude && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Координати: {localPost.latitude.toFixed(4)}, {localPost.longitude.toFixed(4)}
+                  <p className="text-sm text-gray-500 mt-1 group-hover:text-accent whitespace-normal leading-tight">
+                    Отвори на Google Maps
                   </p>
                 )}
               </div>
-            </div>
+            </a>
           </div>
 
           {/* Description */}
           <div className="relative mt-4">
             {editingFields.desc ? (
               <div className="flex gap-2">
-                <textarea
+                <Input
                   name="desc"
                   value={editedPost.desc}
                   onChange={handleChange}
+                  multiline
+                  rows={4}
                   className="input-default min-h-[120px] flex-1"
                 />
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => handleSaveField('desc')}
+                    onClick={() => handleSaveField("desc")}
                     className="p-2 text-accent hover:text-accent-dark"
                   >
                     <CiCircleCheck className="text-2xl" />
                   </button>
                   <button
-                    onClick={() => toggleField('desc')}
+                    onClick={() => toggleField("desc")}
                     className="p-2 text-gray-500 hover:text-gray-700"
                   >
                     <CiCircleRemove className="text-2xl" />
@@ -507,13 +520,13 @@ const PostDisplay = ({ post }: Props) => {
                 <p className="py-2 gap-2 flex-1">{localPost.desc}</p>
                 {isOwner && (
                   <button
-                    onClick={() => toggleField('desc')}
+                    onClick={() => toggleField("desc")}
                     className="p-2 transition-all"
                   >
                     <CiEdit className="text-2xl text-accent" />
                   </button>
                 )}
-            </div>
+              </div>
             )}
           </div>
 

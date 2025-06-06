@@ -15,6 +15,11 @@ const SignInButton = () => {
   };
   const closeRegisterModal = () => setIsRegisterModalOpen(false);
 
+  const openSignInModal = () => {
+    setIsRegisterModalOpen(false);
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       {/* Sign In Button */}
@@ -33,6 +38,7 @@ const SignInButton = () => {
       <RegisterModal
         isOpen={isRegisterModalOpen}
         closeModal={closeRegisterModal}
+        openSignInModal={openSignInModal}
       />
     </>
   );

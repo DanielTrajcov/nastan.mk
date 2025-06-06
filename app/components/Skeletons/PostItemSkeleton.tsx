@@ -3,7 +3,7 @@ const PostItemSkeleton = () => {
     <div className="bg-white border border-gray-200 rounded-lg shadow-md h-auto mb-2 animate-pulse">
       <div className="pt-5 px-5">
         {/* Image skeleton */}
-        <div className="w-full h-[320px] bg-gray-200 rounded-lg"></div>
+        <div className="w-full h-[220px] bg-gray-200 rounded-lg"></div>
       </div>
 
       <div className="p-5">
@@ -35,4 +35,4 @@ const PostItemSkeleton = () => {
   );
 };
 
-export default PostItemSkeleton; 
+export default PostItemSkeleton;
